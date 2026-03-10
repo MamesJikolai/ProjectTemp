@@ -3,7 +3,7 @@ import Message from '../components/Message.tsx'
 import SearchBar from '../components/SearchBar.tsx'
 import { courseList } from '../assets/courses.ts'
 
-import React, { useMemo } from 'react'
+import { useMemo } from 'react'
 import DefaultButton from '../components/DefaultButton.tsx'
 import useMockData from '../hook/useMockData.ts'
 import BasicTable from '../components/BasicTable.tsx'
