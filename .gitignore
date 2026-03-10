@@ -1,0 +1,34 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# DEPENDENCIES (Added **/ to match nested folders)
+**/node_modules
+
+# BUILD OUTPUT
+**/dist
+dist-ssr
+
+# ENVIRONMENT VARIABLES (Important to keep private!)
+.env
+.env.*
+**/.env
+
+# SYSTEM FILES
+.DS_Store
+**/.DS_Store
+
+# IDE / Editor
+.idea
+.vscode/*
+!.vscode/extensions.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
