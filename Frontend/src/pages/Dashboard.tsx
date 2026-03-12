@@ -53,9 +53,13 @@ function Dashboard() {
             <Message text="Dashboard" />
 
             <h2>My Courses</h2>
-            <div className="flex w-full justify-evenly gap-4">
-                {courseList.slice(0, 5).map((item) => (
-                    <CourseCard title={item.title} caption={item.caption} />
+            <div className="flex justify-start w-full overflow-x-auto gap-4 pb-4">
+                {courseList.slice(0, 5).map((item, index) => (
+                    <CourseCard
+                        title={item.title}
+                        caption={item.caption}
+                        key={index}
+                    />
                 ))}
             </div>
             <NavigateButton
@@ -65,11 +69,12 @@ function Dashboard() {
             />
 
             <h2>Analytics</h2>
-            <div className="flex w-full justify-evenly gap-4">
-                <div className="bg-red-200 w-[300px] h-[300px]"></div>
-                <div className="bg-red-200 w-[300px] h-[300px]"></div>
-                <div className="bg-red-200 w-[300px] h-[300px]"></div>
-                <div className="bg-red-200 w-[300px] h-[300px]"></div>
+            <div className="flex justify-start w-full overflow-x-auto gap-4 pb-4">
+                <div className="bg-red-200 w-[300px] h-[300px] shrink-0"></div>
+                <div className="bg-red-200 w-[300px] h-[300px] shrink-0"></div>
+                <div className="bg-red-200 w-[300px] h-[300px] shrink-0"></div>
+                <div className="bg-red-200 w-[300px] h-[300px] shrink-0"></div>
+                <div className="bg-red-200 w-[300px] h-[300px] shrink-0"></div>
             </div>
             <NavigateButton
                 label="View All"

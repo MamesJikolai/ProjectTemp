@@ -17,9 +17,8 @@ function MenuItem({ items }: MenuItemProps) {
     return (
         <div className="flex flex-col">
             {items.map(({ title, link, href, hrefActive }, index) => (
-                <div>
+                <div key={index}>
                     <NavLink
-                        key={index}
                         to={link}
                         className={
                             ({ isActive }) =>

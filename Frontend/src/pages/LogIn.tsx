@@ -1,22 +1,60 @@
-import NavigateButton from '../components/NavigateButton.tsx'
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import DefaultButton from '../components/DefaultButton.tsx'
+import TextInput from '../components/TextInput.tsx'
+import { users } from '../assets/users.ts'
 
 function LogIn() {
+    const [username, setUsername] = useState('')
+    const [password, setPassword] = useState('')
+    const [error, setError] = useState('')
+
+    const navigate = useNavigate()
+
+    const handleLogin = (e: React.SyntheticEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        setError('')
+
+        const foundUser = users.find(
+            (u) => u.username === username && u.password === password
+        )
+
+        if (foundUser) {
+            localStorage.setItem('userRole', foundUser.role)
+            navigate('/dashboard')
+        } else {
+            setError('Invalid username or password')
+        }
+    }
+
     return (
         <div className="flex h-screen flex-col justify-center drop-shadow-md">
-            <div className="flex flex-col items-center gap-[16px] w-fit mx-auto rounded-[32px] px-[64px] py-[32px] bg-[#FEF9FA]">
+            <form
+                onSubmit={handleLogin}
+                className="flex flex-col items-center gap-[16px] w-fit mx-auto rounded-[32px] px-[64px] py-[32px] bg-[#FEF9FA]"
+            >
                 <h1>Log In</h1>
-                <input
+
+                {error && <p className="text-[#DC3545] text-sm m-0">{error}</p>}
+
+                <TextInput
                     type="text"
                     placeholder="username"
-                    className="bg-[#F8F9FA] w-[320px] border-2 border-[#DDE2E5] focus: outline-[#024C89] rounded-[16px] px-[16px] py-[4px]"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="w-[320px]"
                 />
-                <input
+
+                <TextInput
                     type="password"
                     placeholder="password"
-                    className="bg-[#F8F9FA] w-[320px] border-2 border-[#DDE2E5] focus: outline-[#024C89] rounded-[16px] px-[16px] py-[4px]"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-[320px]"
                 />
-                <NavigateButton label="Log In" href="/dashboard" />
-            </div>
+
+                <DefaultButton type="submit">Log In</DefaultButton>
+            </form>
         </div>
     )
 }

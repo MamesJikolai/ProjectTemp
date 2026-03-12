@@ -11,8 +11,12 @@ function Courses() {
 
             {/* Cards Container */}
             <div className="flex flex-row flex-wrap justify-center gap-[16px]">
-                {courseList.map((item) => (
-                    <CourseCard title={item.title} caption={item.caption} />
+                {courseList.map((item, index) => (
+                    <CourseCard
+                        title={item.title}
+                        caption={item.caption}
+                        key={index}
+                    />
                 ))}
             </div>
         </div>

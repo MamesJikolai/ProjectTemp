@@ -4,6 +4,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import Layout from './Layout.tsx'
 import Dashboard from './pages/Dashboard.tsx'
 import Courses from './pages/Courses.tsx'
+import Assessments from './pages/Assessments.tsx'
 import Settings from './pages/Settings.tsx'
 import Achievements from './pages/Achievements.tsx'
 import Campaigns from './pages/Campaigns.tsx'
@@ -37,6 +38,10 @@ const router = createBrowserRouter([
             {
                 path: '/courses',
                 element: <Courses />,
+            },
+            {
+                path: '/assessments',
+                element: <Assessments />,
             },
             {
                 path: '/analytics',

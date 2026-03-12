@@ -1,6 +1,6 @@
 import Message from '../components/Message.tsx'
 import SearchBar from '../components/SearchBar.tsx'
-import DefaultButton from '../components/DefaultButton.tsx'
+import CreateCampaignModal from '../components/CreateCampaignModal.tsx'
 
 import { useMemo } from 'react'
 import useMockData from '../hook/useMockData.ts'
@@ -52,10 +52,7 @@ function Campaigns() {
         <div className="flex flex-col items-start m-8">
             <SearchBar />
             <Message text="Campaigns" />
-            <DefaultButton
-                label="Create Campaign"
-                customCSS="mb-[16px] mt-[16px]"
-            />
+            <CreateCampaignModal />
             <BasicTable data={data} columns={columns} />
         </div>
     )
