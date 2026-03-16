@@ -6,13 +6,16 @@ import {
 import type { ColumnDef } from '@tanstack/react-table'
 
 // 1. Remove TValue from the interface. Use 'any' for the column's value type.
-interface BasicTableProps<TData> {
+interface BasicTableProps<TData, TValue> {
     data: TData[]
-    columns: ColumnDef<TData, any>[]
+    columns: ColumnDef<TData, TValue>[]
 }
 
 // 2. Remove TValue from the component declaration
-function BasicTable<TData>({ data, columns }: BasicTableProps<TData>) {
+function BasicTable<TData, TValue>({
+    data,
+    columns,
+}: BasicTableProps<TData, TValue>) {
     const table = useReactTable({
         data,
         columns,
