@@ -8,7 +8,7 @@ import type { ColumnDef } from '@tanstack/react-table'
 // 1. Remove TValue from the interface. Use 'any' for the column's value type.
 interface BasicTableProps<TData> {
     data: TData[]
-    columns: ColumnDef<TData, unknown>[]
+    columns: ColumnDef<TData, any>[]
 }
 
 // 2. Remove TValue from the component declaration
