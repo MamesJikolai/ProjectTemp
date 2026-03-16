@@ -129,7 +129,7 @@ function Campaigns() {
                 children="Create Campaign"
             />
 
-            <BasicTable<Campaign> data={data} columns={columns} />
+            <BasicTable data={data} columns={columns} />
 
             {isModalOpen && (
                 <CampaignModal
