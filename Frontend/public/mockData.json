@@ -4,95 +4,39 @@
         "name": "Phishing Simulation Campaign 1",
         "status": "Cancelled",
         "target": "All employees",
-        "date": "03/07/2026",
-        "completion": "0%"
+        "date": "2026-03-07",
+        "completion": "0%",
+        "subject": "Email subject 1",
+        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam nec imperdiet nisl, non porta velit. In a neque non diam tincidunt gravida eget ac turpis. Maecenas tincidunt bibendum lacus sit amet finibus. Curabitur arcu risus, venenatis id vulputate vel, vulputate ut eros. Nunc viverra, risus id varius facilisis, nunc ante sodales lectus, id dictum velit nisl sed tortor. Morbi rhoncus arcu nibh, a ullamcorper enim posuere sit amet. Duis hendrerit placerat risus ac pharetra. Morbi sed dui eleifend, tempus neque vel, accumsan nulla. Aenean a tellus molestie, vestibulum purus quis, egestas massa. Aenean suscipit purus et condimentum molestie. Curabitur id congue risus, sed scelerisque elit. Nunc consequat feugiat ex at gravida. Phasellus ac erat at risus scelerisque viverra in eu eros. Duis malesuada fermentum dolor, eu iaculis tortor porta eu. Pellentesque pulvinar lectus lacinia, pellentesque libero et, tristique ipsum."
     },
     {
         "id": 2,
-        "name": "Phishing Simulation Campaign 1",
+        "name": "Phishing Simulation Campaign 2",
         "status": "Completed",
         "target": "All employees",
-        "date": "03/10/2026",
-        "completion": "100%"
+        "date": "2026-03-17",
+        "completion": "100%",
+        "subject": "Email subject 1",
+        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam nec imperdiet nisl, non porta velit. In a neque non diam tincidunt gravida eget ac turpis. Maecenas tincidunt bibendum lacus sit amet finibus. Curabitur arcu risus, venenatis id vulputate vel, vulputate ut eros. Nunc viverra, risus id varius facilisis, nunc ante sodales lectus, id dictum velit nisl sed tortor. Morbi rhoncus arcu nibh, a ullamcorper enim posuere sit amet. Duis hendrerit placerat risus ac pharetra. Morbi sed dui eleifend, tempus neque vel, accumsan nulla. Aenean a tellus molestie, vestibulum purus quis, egestas massa. Aenean suscipit purus et condimentum molestie. Curabitur id congue risus, sed scelerisque elit. Nunc consequat feugiat ex at gravida. Phasellus ac erat at risus scelerisque viverra in eu eros. Duis malesuada fermentum dolor, eu iaculis tortor porta eu. Pellentesque pulvinar lectus lacinia, pellentesque libero et, tristique ipsum."
     },
     {
         "id": 3,
-        "name": "Phishing Simulation Campaign 2",
+        "name": "Phishing Simulation Campaign 3",
         "status": "Active",
         "target": "All employees",
-        "date": "03/12/2026",
-        "completion": "38%"
+        "date": "2026-03-27",
+        "completion": "50%",
+        "subject": "Email subject 1",
+        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam nec imperdiet nisl, non porta velit. In a neque non diam tincidunt gravida eget ac turpis. Maecenas tincidunt bibendum lacus sit amet finibus. Curabitur arcu risus, venenatis id vulputate vel, vulputate ut eros. Nunc viverra, risus id varius facilisis, nunc ante sodales lectus, id dictum velit nisl sed tortor. Morbi rhoncus arcu nibh, a ullamcorper enim posuere sit amet. Duis hendrerit placerat risus ac pharetra. Morbi sed dui eleifend, tempus neque vel, accumsan nulla. Aenean a tellus molestie, vestibulum purus quis, egestas massa. Aenean suscipit purus et condimentum molestie. Curabitur id congue risus, sed scelerisque elit. Nunc consequat feugiat ex at gravida. Phasellus ac erat at risus scelerisque viverra in eu eros. Duis malesuada fermentum dolor, eu iaculis tortor porta eu. Pellentesque pulvinar lectus lacinia, pellentesque libero et, tristique ipsum."
     },
     {
         "id": 4,
-        "name": "Phishing Simulation Campaign 3",
-        "status": "Draft",
-        "target": "All employees",
-        "date": "03/16/2026",
-        "completion": "0%"
-    },
-    {
-        "id": 5,
         "name": "Phishing Simulation Campaign 4",
         "status": "Draft",
         "target": "All employees",
-        "date": "03/22/2026",
-        "completion": "0%"
-    },
-    {
-        "id": 6,
-        "name": "Q1 Finance Spear Phishing",
-        "status": "Completed",
-        "target": "Finance Department",
-        "date": "02/15/2026",
-        "completion": "100%"
-    },
-    {
-        "id": 7,
-        "name": "Urgent IT Password Reset",
-        "status": "Active",
-        "target": "Engineering",
-        "date": "03/09/2026",
-        "completion": "65%"
-    },
-    {
-        "id": 8,
-        "name": "HR Benefits Update 2026",
-        "status": "Draft",
-        "target": "All employees",
-        "date": "03/25/2026",
-        "completion": "0%"
-    },
-    {
-        "id": 9,
-        "name": "Executive Whaling Simulation",
-        "status": "Scheduled",
-        "target": "C-Suite & VPs",
-        "date": "04/05/2026",
-        "completion": "0%"
-    },
-    {
-        "id": 10,
-        "name": "Fake Invoice Attached",
-        "status": "Cancelled",
-        "target": "Sales Team",
-        "date": "03/01/2026",
-        "completion": "12%"
-    },
-    {
-        "id": 11,
-        "name": "Office 365 Re-login",
-        "status": "Completed",
-        "target": "New Hires (Q1)",
-        "date": "02/28/2026",
-        "completion": "100%"
-    },
-    {
-        "id": 12,
-        "name": "Holiday Bonus Scams",
-        "status": "Draft",
-        "target": "All employees",
-        "date": "11/15/2026",
-        "completion": "0%"
+        "date": "2026-03-31",
+        "completion": "0%",
+        "subject": "Email subject 1",
+        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam nec imperdiet nisl, non porta velit. In a neque non diam tincidunt gravida eget ac turpis. Maecenas tincidunt bibendum lacus sit amet finibus. Curabitur arcu risus, venenatis id vulputate vel, vulputate ut eros. Nunc viverra, risus id varius facilisis, nunc ante sodales lectus, id dictum velit nisl sed tortor. Morbi rhoncus arcu nibh, a ullamcorper enim posuere sit amet. Duis hendrerit placerat risus ac pharetra. Morbi sed dui eleifend, tempus neque vel, accumsan nulla. Aenean a tellus molestie, vestibulum purus quis, egestas massa. Aenean suscipit purus et condimentum molestie. Curabitur id congue risus, sed scelerisque elit. Nunc consequat feugiat ex at gravida. Phasellus ac erat at risus scelerisque viverra in eu eros. Duis malesuada fermentum dolor, eu iaculis tortor porta eu. Pellentesque pulvinar lectus lacinia, pellentesque libero et, tristique ipsum."
     }
 ]

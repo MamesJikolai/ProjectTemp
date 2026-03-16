@@ -18,7 +18,7 @@ type Campaign = {
 }
 
 function Dashboard() {
-    const { data, error } = useMockData()
+    const { data, error } = useMockData<Campaign>()
 
     // Define table columns to pass into table
     const columns = useMemo<ColumnDef<Campaign>[]>(
