@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { users } from '../assets/users.ts'
+import TextInput from '../components/TextInput.tsx'
 
 function LogIn() {
     const [username, setUsername] = useState('')
@@ -40,35 +41,31 @@ function LogIn() {
                     {error && <p className="text-rose-500">{error}</p>}
                 </div>
 
-                <label>
-                    <span>Email</span>
-                    <input
-                        type="text"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        className="border-[#DDE2E5] border-2 w-full px-4 py-2 rounded-[32px]"
-                    />
-                </label>
+                <TextInput
+                    label="Email"
+                    type="text"
+                    placeholder="Email"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="w-full"
+                />
 
-                <label>
-                    <span>Password</span>
-                    <input
-                        type={type}
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="border-[#DDE2E5] border-2 w-full px-4 py-2 mb-1 rounded-[32px]"
-                    />
+                <TextInput
+                    label="Password"
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full"
+                />
 
-                    <label className="flex-row! items-center w-fit cursor-pointer">
-                        <input
-                            type="checkbox"
-                            onChange={handleToggle}
-                            checked={type === 'text'}
-                            className="accent-[#3572A1] cursor-pointer"
-                        />
-                        <span>Show password</span>
-                    </label>
-                </label>
+                <TextInput
+                    label="Show password"
+                    type="checkbox"
+                    onChange={handleToggle}
+                    checked={type === 'text'}
+                    className="accent-[#3572A1] mr-1 cursor-pointer"
+                />
 
                 <button
                     type="submit"

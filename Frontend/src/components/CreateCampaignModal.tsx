@@ -1,20 +1,23 @@
 import DefaultButton from '../components/DefaultButton.tsx'
 import TextInput from './TextInput.tsx'
+import TextField from './TextField.tsx'
 import { useState } from 'react'
 
 function CreateCampaignModal() {
     const [showCreate, setShowCreate] = useState(false)
     const [name, setName] = useState('')
     const [status, setStatus] = useState('')
-    const [target, setTarget] = useState('')
     const [date, setDate] = useState('')
+    const [target, setTarget] = useState('')
+    const [subject, setSubject] = useState('')
+    const [body, setBody] = useState('')
     const [error, setError] = useState('')
 
     const handleCreateCampaign = (e: React.SyntheticEvent<HTMLFormElement>) => {
         e.preventDefault()
         setError('')
 
-        if (!name || !status || !target || !date) {
+        if (!name || !status || !date || !target || !subject || !body) {
             setError('All fields are required!')
             return
         }
@@ -26,6 +29,8 @@ function CreateCampaignModal() {
         setStatus('')
         setDate('')
         setTarget('')
+        setSubject('')
+        setBody('')
     }
 
     return (
@@ -59,19 +64,14 @@ function CreateCampaignModal() {
                             </p>
                         )}
 
-                        <label>
-                            <span className="font-bold text-[#121212]">
-                                Name
-                            </span>
-                            <br />
-                            <TextInput
-                                type="text"
-                                placeholder="Campaign Name"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                className="w-full"
-                            />
-                        </label>
+                        <TextInput
+                            label="Name"
+                            type="text"
+                            placeholder="Campaign Name"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            className="w-full"
+                        />
 
                         <label>
                             <span className="font-bold text-[#121212]">
@@ -82,7 +82,7 @@ function CreateCampaignModal() {
                                 name="status"
                                 value={status}
                                 onChange={(e) => setStatus(e.target.value)}
-                                className="text-[#4A4A4A] bg-#F8F9FA border-2 border-[#4A4A4A] focus:outline-[#024C89] active:outline-[#024C89] w-full rounded-[16px] px-[12px] max-w-2xl py-0.5"
+                                className="text-[#4A4A4A] bg-#F8F9FA border-2 border-[#DDE2E5] focus:outline-[#024C89] active:outline-[#024C89] w-full rounded-[16px] px-[12px] max-w-2xl py-0.5"
                             >
                                 <option value="" disabled hidden>
                                     -- Select an option --
@@ -94,33 +94,41 @@ function CreateCampaignModal() {
                             </select>
                         </label>
 
-                        <label>
-                            <span className="font-bold text-[#121212]">
-                                Target
-                            </span>
-                            <br />
-                            <TextInput
-                                type="text"
-                                placeholder="Campaign Target"
-                                value={target}
-                                onChange={(e) => setTarget(e.target.value)}
-                                className="w-full"
-                            />
-                        </label>
+                        <TextInput
+                            label="Date"
+                            type="date"
+                            placeholder="Campaign Date"
+                            value={date}
+                            onChange={(e) => setDate(e.target.value)}
+                            className="w-full"
+                        />
 
-                        <label>
-                            <span className="font-bold text-[#121212]">
-                                Date
-                            </span>
-                            <br />
-                            <TextInput
-                                type="date"
-                                placeholder="Campaign Date"
-                                value={date}
-                                onChange={(e) => setDate(e.target.value)}
-                                className="w-full"
-                            />
-                        </label>
+                        <TextInput
+                            label="Target"
+                            type="text"
+                            placeholder="Campaign Target"
+                            value={target}
+                            onChange={(e) => setTarget(e.target.value)}
+                            className="w-full"
+                        />
+
+                        <TextInput
+                            label="Subject"
+                            type="text"
+                            placeholder="Email Subject"
+                            value={subject}
+                            onChange={(e) => setSubject(e.target.value)}
+                            className="w-full"
+                        />
+
+                        <TextField
+                            label="Body"
+                            placeholder="Email Body"
+                            value={body}
+                            onChange={(e) => setBody(e.target.value)}
+                            className="w-full"
+                            rows={6}
+                        />
 
                         <DefaultButton type="submit" className="self-center">
                             Create

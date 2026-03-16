@@ -8,7 +8,7 @@ function MyCourses() {
             <Message text="My Courses" />
 
             {/* Cards Container */}
-            <div className="flex flex-row flex-wrap justify-center gap-[16px]">
+            <div className="flex flex-row flex-wrap justify-center gap-[32px]">
                 {courseList.map((item, index) => (
                     <CourseCard
                         title={item.title}

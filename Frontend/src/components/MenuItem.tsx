@@ -22,7 +22,7 @@ function MenuItem({ items }: MenuItemProps) {
                         to={link}
                         className={
                             ({ isActive }) =>
-                                `flex flex-row items-center pl-4 py-4 ${isActive ? 'text-[#024C89] font-bold border-l-4 border-[#024C89]' : 'font-medium hover:bg-[#E6EDF3]'}` //Active : Inactive
+                                `flex flex-row items-center pl-4 py-4 ${isActive ? 'text-[#024C89] font-bold border-r-4 border-[#024C89]' : 'font-medium hover:bg-[#E6EDF3]'}` //Active : Inactive
                         }
                     >
                         {({ isActive }) => (

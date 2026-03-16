@@ -11,7 +11,7 @@ function Layout() {
                 {role === 'admin' ? <AdminSidebar /> : <UserSidebar />}
             </aside>
 
-            <main className="bg-[#E6EDF3] grow ml-[320px] min-w-0 overflow-x-hidden">
+            <main className="bg-[#E6EDF3] grow ml-[240px] min-w-0 overflow-x-hidden">
                 <div>
                     <Outlet />
                 </div>

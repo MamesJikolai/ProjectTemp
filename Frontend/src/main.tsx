@@ -15,11 +15,21 @@ import Notifications from './pages/admin/Notifications.tsx'
 import Account from './pages/admin/Account.tsx'
 import Users from './pages/admin/Users.tsx'
 import LogIn from './pages/LogIn.tsx'
+import PhishingPage from './pages/PhishingPage.tsx'
 
 const router = createBrowserRouter([
     {
-        path: '/login', // LogIn is now the default root page
-        element: <LogIn />,
+        path: '/',
+        children: [
+            {
+                path: '/login',
+                element: <LogIn />,
+            },
+            {
+                path: '/phishing',
+                element: <PhishingPage />,
+            },
+        ],
     },
     {
         path: '/',

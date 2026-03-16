@@ -1,13 +1,25 @@
 import React from 'react'
 
-type TextInputProps = React.InputHTMLAttributes<HTMLInputElement>
+interface TextInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+    label: string
+}
 
-function TextInput({ className = '', ...props }: TextInputProps) {
+function TextInput({ label, className = '', ...props }: TextInputProps) {
+    const isCheckbox = props.type === 'checkbox'
+
     return (
-        <input
-            className={`text-[#4A4A4A] bg-#F8F9FA border-2 border-[#4A4A4A] focus:outline-[#024C89] rounded-[16px] px-[12px] max-w-2xl py-0.5 ${className}`}
-            {...props}
-        />
+        <label>
+            {!isCheckbox && (
+                <span className="text-[#121212] font-medium">{label}</span>
+            )}
+
+            <input
+                className={`text-[#4A4A4A] bg-#F8F9FA border-2 border-[#DDE2E5] focus:outline-[#024C89] rounded-4xl px-4 max-w-2xl py-2 ${className}`}
+                {...props}
+            />
+
+            {isCheckbox && <span className="text-[#121212]">{label}</span>}
+        </label>
     )
 }
 
