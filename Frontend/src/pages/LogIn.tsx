@@ -1,14 +1,12 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import DefaultButton from '../components/DefaultButton.tsx'
-import TextInput from '../components/TextInput.tsx'
 import { users } from '../assets/users.ts'
 
 function LogIn() {
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
+    const [type, setType] = useState('password')
     const [error, setError] = useState('')
-
     const navigate = useNavigate()
 
     const handleLogin = (e: React.SyntheticEvent<HTMLFormElement>) => {
@@ -27,33 +25,57 @@ function LogIn() {
         }
     }
 
+    const handleToggle = () => {
+        setType((prev) => (prev === 'password' ? 'text' : 'password'))
+    }
+
     return (
         <div className="flex h-screen flex-col justify-center drop-shadow-md">
             <form
                 onSubmit={handleLogin}
-                className="flex flex-col items-center gap-[16px] w-fit mx-auto rounded-[32px] px-[64px] py-[32px] bg-[#FEF9FA]"
+                className="flex flex-col gap-4 bg-[#FEF9FA] w-[90%] max-w-[600px] mx-auto px-[48px] py-[32px]"
             >
-                <h1>Log In</h1>
+                <div className="flex flex-col gap-1">
+                    <h1>Login</h1>
+                    {error && <p className="text-rose-500">{error}</p>}
+                </div>
 
-                {error && <p className="text-[#DC3545] text-sm m-0">{error}</p>}
+                <label>
+                    <span>Email</span>
+                    <input
+                        type="text"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        className="border-[#DDE2E5] border-2 w-full px-4 py-2 rounded-[32px]"
+                    />
+                </label>
 
-                <TextInput
-                    type="text"
-                    placeholder="username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    className="w-[320px]"
-                />
+                <label>
+                    <span>Password</span>
+                    <input
+                        type={type}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="border-[#DDE2E5] border-2 w-full px-4 py-2 mb-1 rounded-[32px]"
+                    />
 
-                <TextInput
-                    type="password"
-                    placeholder="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-[320px]"
-                />
+                    <label className="flex-row! items-center w-fit cursor-pointer">
+                        <input
+                            type="checkbox"
+                            onChange={handleToggle}
+                            checked={type === 'text'}
+                            className="accent-[#3572A1] cursor-pointer"
+                        />
+                        <span>Show password</span>
+                    </label>
+                </label>
 
-                <DefaultButton type="submit">Log In</DefaultButton>
+                <button
+                    type="submit"
+                    className="text-[#FFFAFA] bg-[#024C89] hover:bg-[#3572A1] py-2 cursor-pointer"
+                >
+                    Submit
+                </button>
             </form>
         </div>
     )

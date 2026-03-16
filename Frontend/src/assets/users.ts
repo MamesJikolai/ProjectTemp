@@ -4,9 +4,4 @@ export const users = [
         password: 'admin',
         role: 'admin',
     },
-    {
-        username: 'user',
-        password: 'user',
-        role: 'user',
-    },
 ]

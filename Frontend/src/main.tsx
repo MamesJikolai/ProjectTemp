@@ -2,27 +2,33 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import Layout from './Layout.tsx'
-import Dashboard from './pages/Dashboard.tsx'
-import Courses from './pages/Courses.tsx'
-import Assessments from './pages/Assessments.tsx'
-import Settings from './pages/Settings.tsx'
-import Achievements from './pages/Achievements.tsx'
-import Campaigns from './pages/Campaigns.tsx'
-import Analytics from './pages/Analytics.tsx'
-import Notifications from './pages/Notifications.tsx'
-import Account from './pages/Account.tsx'
-import Users from './pages/Users.tsx'
+import Dashboard from './pages/admin/Dashboard.tsx'
+import Home from './pages/user/Home.tsx'
+import Courses from './pages/admin/Courses.tsx'
+import MyCourses from './pages/user/MyCourses.tsx'
+import Assessments from './pages/admin/Assessments.tsx'
+import Settings from './pages/admin/Settings.tsx'
+import Achievements from './pages/user/Achievements.tsx'
+import Campaigns from './pages/admin/Campaigns.tsx'
+import Analytics from './pages/admin/Analytics.tsx'
+import Notifications from './pages/admin/Notifications.tsx'
+import Account from './pages/admin/Account.tsx'
+import Users from './pages/admin/Users.tsx'
 import LogIn from './pages/LogIn.tsx'
 
 const router = createBrowserRouter([
     {
-        path: '/', // LogIn is now the default root page
+        path: '/login', // LogIn is now the default root page
         element: <LogIn />,
     },
     {
         path: '/',
         element: <Layout />,
         children: [
+            {
+                index: true,
+                element: <Home />,
+            },
             {
                 path: '/dashboard',
                 element: <Dashboard />,
@@ -38,6 +44,10 @@ const router = createBrowserRouter([
             {
                 path: '/courses',
                 element: <Courses />,
+            },
+            {
+                path: '/my-courses',
+                element: <MyCourses />,
             },
             {
                 path: '/assessments',

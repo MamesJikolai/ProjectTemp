@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom'
 import MenuItem from './MenuItem.tsx'
-import logo from '../assets/logo-default.png'
 import { Icons } from '../assets/icons.ts'
 
 const navLinksTop = [
@@ -44,12 +43,6 @@ const navLinksTop = [
 
 const navLinksBottom = [
     {
-        title: 'Notifications',
-        link: '/notifications',
-        href: Icons.notifications,
-        hrefActive: Icons.notificationsActive,
-    },
-    {
         title: 'Account',
         link: '/account',
         href: Icons.account,
@@ -58,16 +51,17 @@ const navLinksBottom = [
 ]
 
 function AdminSidebar() {
+    const handleLogout = () => {
+        localStorage.removeItem('userRole')
+        window.location.href = '/'
+    }
+
     return (
-        <div className="flex flex-col justify-between w-[320px] text-[#4A4A4A] h-full">
+        <div className="flex flex-col justify-between w-[240px] text-[#4A4A4A] h-full">
             <div>
                 {/* logo */}
-                <Link
-                    to="/dashboard"
-                    className="flex flex-row items-center gap-2 pl-4 py-4"
-                >
-                    <img src={logo} alt="Logo" className="w-20 h-20" />
-                    App Name
+                <Link to="/dashboard">
+                    <div className="bg-[#024C89] w-fill h-[120px] m-2"></div>
                 </Link>
 
                 {/* nav links */}
@@ -76,6 +70,18 @@ function AdminSidebar() {
 
             <div>
                 <MenuItem items={navLinksBottom} />
+
+                <button
+                    onClick={handleLogout}
+                    className="flex flex-row items-center w-full font-medium hover:bg-[#E6EDF3] pl-4 py-4 cursor-pointer"
+                >
+                    <img
+                        src={Icons.account}
+                        alt="Sign Out"
+                        className="w-6 h-6 mr-2"
+                    />
+                    Sign Out
+                </button>
             </div>
         </div>
     )
