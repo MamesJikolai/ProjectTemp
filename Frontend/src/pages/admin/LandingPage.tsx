@@ -5,10 +5,28 @@ import TextField from '../../components/TextField'
 import DefaultButton from '../../components/DefaultButton'
 
 function LandingPage() {
-    const [title, setTitle] = useState('')
-    const [message1, setMessage1] = useState('')
-    const [message2, setMessage2] = useState('')
-    const [buttonText, setButtonText] = useState('')
+    // Change to DB later
+    const [template] = useState(() => {
+        const savedTemplate = localStorage.getItem('phishingTemplate')
+
+        if (savedTemplate) {
+            return JSON.parse(savedTemplate)
+        }
+
+        return {
+            title: 'Wait! This was a Phishing Simulation',
+            message1:
+                "Don't worry, your data is safe. However, a real attacker could have used that link to access your personal details, address, and credit information.",
+            message2:
+                'Your security is a priority. Please follow the link below to complete your required phishing awareness module.',
+            buttonText: 'Go to Training Portal',
+        }
+    })
+
+    const [title, setTitle] = useState(template.title)
+    const [message1, setMessage1] = useState(template.message1)
+    const [message2, setMessage2] = useState(template.message2)
+    const [buttonText, setButtonText] = useState(template.buttonText)
     const [error, setError] = useState('')
 
     const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
