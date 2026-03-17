@@ -19,7 +19,7 @@ function LogIn() {
         )
 
         if (foundUser) {
-            localStorage.setItem('userRole', foundUser.role)
+            localStorage.setItem('userId', foundUser.id.toString())
             navigate('/dashboard')
         } else {
             setError('Invalid username or password')
@@ -42,9 +42,9 @@ function LogIn() {
                 </div>
 
                 <TextInput
-                    label="Email"
+                    label="Username"
                     type="text"
-                    placeholder="Email"
+                    placeholder="Username"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     className="w-full"
@@ -52,7 +52,7 @@ function LogIn() {
 
                 <TextInput
                     label="Password"
-                    type="password"
+                    type={type}
                     placeholder="Password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}

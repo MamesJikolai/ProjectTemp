@@ -16,7 +16,7 @@ const navLinksTop = [
         hrefActive: Icons.landingActive,
     },
     {
-        title: 'Templates',
+        title: 'Email Templates',
         link: '/templates',
         href: Icons.template,
         hrefActive: Icons.templateActive,
