@@ -8,7 +8,6 @@ import Home from './pages/user/Home.tsx'
 import Courses from './pages/admin/Courses.tsx'
 import MyCourses from './pages/user/MyCourses.tsx'
 import Settings from './pages/admin/Settings.tsx'
-import Achievements from './pages/user/Achievements.tsx'
 import Campaigns from './pages/admin/Campaigns.tsx'
 import Analytics from './pages/admin/Analytics.tsx'
 import Notifications from './pages/admin/Notifications.tsx'
@@ -18,14 +17,19 @@ import LogIn from './pages/LogIn.tsx'
 import PhishingPage from './pages/PhishingPage.tsx'
 import LandingPage from './pages/admin/LandingPage.tsx'
 import Templates from './pages/admin/Templates.tsx'
+import ProtectedRoute from './components/ProtectedRoute.tsx'
 
 const router = createBrowserRouter([
     {
-        path: '/',
+        path: '/login',
+        element: <LogIn />,
+    },
+    {
+        // Pathless route: applies UserLayout and basic auth to all children
         element: <UserLayout />,
         children: [
             {
-                index: true,
+                path: '/',
                 element: <PhishingPage />,
             },
             {
@@ -39,12 +43,12 @@ const router = createBrowserRouter([
         ],
     },
     {
-        path: '/login',
-        element: <LogIn />,
-    },
-    {
-        path: '/',
-        element: <Layout />,
+        // Pathless route: applies Layout and strict admin auth to all children
+        element: (
+            <ProtectedRoute requireAdmin={true}>
+                <Layout />
+            </ProtectedRoute>
+        ),
         children: [
             {
                 path: '/dashboard',
@@ -73,10 +77,6 @@ const router = createBrowserRouter([
             {
                 path: '/analytics',
                 element: <Analytics />,
-            },
-            {
-                path: '/achievements',
-                element: <Achievements />,
             },
             {
                 path: '/settings',

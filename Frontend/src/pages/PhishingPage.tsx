@@ -55,7 +55,6 @@ function PhishingPage({
 
     // Change to DB later
     const handleNavigate = () => {
-        localStorage.removeItem('userRole')
         window.location.href = '/home'
     }
 

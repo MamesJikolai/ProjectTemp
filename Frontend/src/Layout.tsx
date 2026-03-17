@@ -1,14 +1,11 @@
 import { Outlet } from 'react-router-dom'
 import AdminSidebar from './components/AdminSidebar.tsx'
-import UserSidebar from './components/UserSidebar.tsx'
 
 function Layout() {
-    const role = localStorage.getItem('userRole') || 'user'
-
     return (
         <div className="flex flex-row min-h-screen">
             <aside className="bg-[#F8F9FA] h-screen fixed">
-                {role === 'admin' ? <AdminSidebar /> : <UserSidebar />}
+                <AdminSidebar />
             </aside>
 
             <main className="bg-[#E6EDF3] grow ml-[240px] min-w-0 overflow-x-hidden">
