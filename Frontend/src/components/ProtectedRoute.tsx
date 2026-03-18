@@ -1,19 +1,19 @@
 import { Navigate } from 'react-router-dom'
 import type { ReactNode } from 'react'
-import { users } from '../assets/users'
+import { accounts } from '../assets/dummydata/accounts'
 
 interface ProtectedRouteProps {
     children: ReactNode
-    requireAdmin?: boolean
+    allowedRoles?: string[]
 }
 
 function ProtectedRoute({
     children,
-    requireAdmin = false,
+    allowedRoles = ['admin', 'hr'],
 }: ProtectedRouteProps) {
     const userId = localStorage.getItem('userId')
 
-    const foundUser = users.find((u) => u.id.toString() === userId)
+    const foundUser = accounts.find((u) => u.id.toString() === userId)
 
     // 1. Not logged in at all -> Send to Login
     if (!foundUser) {
@@ -21,7 +21,7 @@ function ProtectedRoute({
     }
 
     // 2. Requires admin, but user is something else -> Send to User Home
-    if (requireAdmin && foundUser.role !== 'admin') {
+    if (!allowedRoles.includes(foundUser.role)) {
         return <Navigate to="/home" replace />
     }
 

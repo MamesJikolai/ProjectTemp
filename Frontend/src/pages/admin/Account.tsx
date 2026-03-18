@@ -2,11 +2,11 @@ import { useState } from 'react'
 import Message from '../../components/Message'
 import TextInput from '../../components/TextInput'
 import DefaultButton from '../../components/DefaultButton'
-import { users } from '../../assets/users'
+import { accounts } from '../../assets/dummydata/accounts'
 
 function Account() {
     const userId = localStorage.getItem('userId')
-    const user = users.find((u) => u.id === Number(userId))
+    const user = accounts.find((u) => u.id === Number(userId))
     const [error, setError] = useState('')
 
     const [userData, setUserData] = useState({

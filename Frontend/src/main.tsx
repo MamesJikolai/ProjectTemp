@@ -10,7 +10,6 @@ import MyCourses from './pages/user/MyCourses.tsx'
 import Settings from './pages/admin/Settings.tsx'
 import Campaigns from './pages/admin/Campaigns.tsx'
 import Analytics from './pages/admin/Analytics.tsx'
-import Notifications from './pages/admin/Notifications.tsx'
 import Account from './pages/admin/Account.tsx'
 import Users from './pages/admin/Users.tsx'
 import LogIn from './pages/LogIn.tsx'
@@ -45,7 +44,7 @@ const router = createBrowserRouter([
     {
         // Pathless route: applies Layout and strict admin auth to all children
         element: (
-            <ProtectedRoute requireAdmin={true}>
+            <ProtectedRoute allowedRoles={['admin', 'hr']}>
                 <Layout />
             </ProtectedRoute>
         ),
@@ -56,11 +55,19 @@ const router = createBrowserRouter([
             },
             {
                 path: '/landing-page',
-                element: <LandingPage />,
+                element: (
+                    <ProtectedRoute allowedRoles={['admin']}>
+                        <LandingPage />
+                    </ProtectedRoute>
+                ),
             },
             {
                 path: '/templates',
-                element: <Templates />,
+                element: (
+                    <ProtectedRoute allowedRoles={['admin']}>
+                        <Templates />
+                    </ProtectedRoute>
+                ),
             },
             {
                 path: '/campaigns',
@@ -68,11 +75,19 @@ const router = createBrowserRouter([
             },
             {
                 path: '/users',
-                element: <Users />,
+                element: (
+                    <ProtectedRoute allowedRoles={['admin']}>
+                        <Users />
+                    </ProtectedRoute>
+                ),
             },
             {
                 path: '/courses',
-                element: <Courses />,
+                element: (
+                    <ProtectedRoute allowedRoles={['admin']}>
+                        <Courses />
+                    </ProtectedRoute>
+                ),
             },
             {
                 path: '/analytics',
@@ -80,11 +95,11 @@ const router = createBrowserRouter([
             },
             {
                 path: '/settings',
-                element: <Settings />,
-            },
-            {
-                path: '/notifications',
-                element: <Notifications />,
+                element: (
+                    <ProtectedRoute allowedRoles={['admin']}>
+                        <Settings />
+                    </ProtectedRoute>
+                ),
             },
             {
                 path: '/account',

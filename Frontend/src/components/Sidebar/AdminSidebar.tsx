@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import MenuItem from './MenuItem.tsx'
 import { Icons } from '../../assets/icons.ts'
+import { accounts } from '../../assets/dummydata/accounts.ts'
 
 const navLinksTop = [
     {
@@ -8,48 +9,56 @@ const navLinksTop = [
         link: '/dashboard',
         href: Icons.dashboard,
         hrefActive: Icons.dashboardActive,
+        allowedRoles: ['admin', 'hr'],
     },
     {
         title: 'Landing Page',
         link: '/landing-page',
         href: Icons.landing,
         hrefActive: Icons.landingActive,
+        allowedRoles: ['admin'],
     },
     {
         title: 'Email Templates',
         link: '/templates',
         href: Icons.template,
         hrefActive: Icons.templateActive,
+        allowedRoles: ['admin'],
     },
     {
         title: 'Campaigns',
         link: '/campaigns',
         href: Icons.campaigns,
         hrefActive: Icons.campaignsActive,
+        allowedRoles: ['admin', 'hr'],
     },
     {
         title: 'User Management',
         link: '/users',
         href: Icons.users,
         hrefActive: Icons.usersActive,
+        allowedRoles: ['admin'],
     },
     {
         title: 'Courses',
         link: '/courses',
         href: Icons.courses,
         hrefActive: Icons.coursesActive,
+        allowedRoles: ['admin'],
     },
     {
         title: 'Analytics & Reports',
         link: '/analytics',
         href: Icons.analytics,
         hrefActive: Icons.analyticsActive,
+        allowedRoles: ['admin', 'hr'],
     },
     {
         title: 'Settings',
         link: '/settings',
         href: Icons.settings,
         hrefActive: Icons.settingsActive,
+        allowedRoles: ['admin'],
     },
 ]
 
@@ -59,10 +68,23 @@ const navLinksBottom = [
         link: '/account',
         href: Icons.account,
         hrefActive: Icons.accountActive,
+        allowedRoles: ['admin', 'hr'],
     },
 ]
 
 function AdminSidebar() {
+    const userId = localStorage.getItem('userId')
+    const currentUser = accounts.find((u) => u.id === Number(userId))
+    const userRole = currentUser?.role || ''
+
+    const filteredNavLinksTop = navLinksTop.filter((link) =>
+        link.allowedRoles.includes(userRole)
+    )
+
+    const filteredNavLinksBottom = navLinksBottom.filter((link) =>
+        link.allowedRoles.includes(userRole)
+    )
+
     const handleLogout = () => {
         localStorage.removeItem('userId')
         window.location.href = '/home'
@@ -77,11 +99,11 @@ function AdminSidebar() {
                 </Link>
 
                 {/* nav links */}
-                <MenuItem items={navLinksTop} />
+                <MenuItem items={filteredNavLinksTop} />
             </div>
 
             <div>
-                <MenuItem items={navLinksBottom} />
+                <MenuItem items={filteredNavLinksBottom} />
 
                 <button
                     onClick={handleLogout}

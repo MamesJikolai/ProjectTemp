@@ -17,7 +17,7 @@ export default function getCellClasses(cell: any) {
         } else if (cellValue === 'draft') {
             return 'text-[#FFC107] font-bold'
         }
-    } else if (cell.column.id.toLowerCase() === 'email status') {
+    } else if (cell.column.id.toLowerCase() === 'emailstatus') {
         if (cellValue === 'sent') {
             return 'text-[#28A745] font-bold'
         } else if (cellValue === 'failed') {

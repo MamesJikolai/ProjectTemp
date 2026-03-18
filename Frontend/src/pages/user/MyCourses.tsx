@@ -1,6 +1,6 @@
 import Message from '../../components/Message.tsx'
 import CourseCard from '../../components/CourseCard.tsx'
-import { courseList } from '../../assets/courses.ts'
+import { courseList } from '../../assets/dummydata/courses.ts'
 
 function MyCourses() {
     return (

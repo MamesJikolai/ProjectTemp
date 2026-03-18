@@ -6,6 +6,7 @@ import { useState, useCallback } from 'react'
 import useMockData from '../../hook/useMockData.ts'
 import BasicTable from '../../components/Tables/BasicTable.tsx'
 import type { ColumnDef } from '@tanstack/react-table'
+import { accounts } from '../../assets/dummydata/accounts.ts'
 
 export type Campaign = {
     id: number
@@ -19,6 +20,9 @@ export type Campaign = {
 }
 
 function Campaigns() {
+    const userId = localStorage.getItem('userId')
+    const currentUser = accounts.find((u) => u.id === Number(userId))
+    const userRole = currentUser?.role || ''
     const { data, setData, error } = useMockData<Campaign>()
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [modalMode, setModalMode] = useState<'create' | 'edit'>('create')
@@ -109,6 +113,11 @@ function Campaigns() {
         },
     ]
 
+    const visibleColumns =
+        userRole === 'hr'
+            ? columns.filter((col) => col.id !== 'actions')
+            : columns
+
     if (error) return <div>{error}</div>
     if (data.length === 0) return <div>Loading...</div>
 
@@ -116,14 +125,19 @@ function Campaigns() {
         <div className="flex flex-col items-start m-8">
             <Message text="Campaigns" />
 
-            {/* The Create button now lives here, passing control to the states */}
-            <DefaultButton
-                className="bg-[#024C89] hover:bg-[#3572A1] text-[#F8F9FA] mb-[16px] mt-[16px]"
-                onClick={openCreateModal}
-                children="Create Campaign"
-            />
+            {userRole !== 'hr' && (
+                <DefaultButton
+                    className="bg-[#024C89] hover:bg-[#3572A1] text-[#F8F9FA] mb-[16px] mt-[16px]"
+                    onClick={openCreateModal}
+                    children="Create Campaign"
+                />
+            )}
 
-            <BasicTable data={data} columns={columns} tableStyle="w-full" />
+            <BasicTable
+                data={data}
+                columns={visibleColumns}
+                tableStyle="w-full"
+            />
 
             {isModalOpen && (
                 <CampaignModal

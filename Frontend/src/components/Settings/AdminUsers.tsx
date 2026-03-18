@@ -1,4 +1,4 @@
-import { users } from '../../assets/users'
+import { accounts } from '../../assets/dummydata/accounts'
 import BasicTable from '../Tables/BasicTable'
 import type { ColumnDef } from '@tanstack/react-table'
 import DefaultButton from '../DefaultButton'
@@ -23,7 +23,7 @@ function AdminUsers() {
                     className="bg-[#024C89] hover:bg-[#3572A1] text-[#F8F9FA] self-center"
                 />
             </div>
-            <BasicTable data={users} columns={columns} />
+            <BasicTable data={accounts} columns={columns} />
         </div>
     )
 }

@@ -47,14 +47,15 @@ function BasicTable<TData>({
                         <tr key={row.id}>
                             {row.getVisibleCells().map((cell) => {
                                 return (
-                                    <td
-                                        key={cell.id}
-                                        className={`p-2 border-b border-[#DDE2E5] ${getCellClasses(cell)}`}
-                                    >
-                                        {flexRender(
-                                            cell.column.columnDef.cell,
-                                            cell.getContext()
-                                        )}
+                                    <td key={cell.id}>
+                                        <p
+                                            className={`${getCellClasses(cell)}`}
+                                        >
+                                            {flexRender(
+                                                cell.column.columnDef.cell,
+                                                cell.getContext()
+                                            )}
+                                        </p>
                                     </td>
                                 )
                             })}

@@ -1,6 +1,6 @@
 import CourseCard from '../../components/CourseCard.tsx'
 import Message from '../../components/Message.tsx'
-import { courseList } from '../../assets/courses.ts'
+import { courseList } from '../../assets/dummydata/courses.ts'
 
 import { useMemo } from 'react'
 import NavigateButton from '../../components/NavigateButton.tsx'
@@ -79,11 +79,7 @@ function Dashboard() {
             ) : data.length === 0 ? (
                 <div>Loading...</div>
             ) : (
-                <BasicTable
-                    data={data.slice(0, 5)}
-                    columns={columns}
-                    tableStyle="w-full"
-                />
+                <BasicTable data={data.slice(0, 5)} columns={columns} />
             )}
             <NavigateButton
                 label="View All"

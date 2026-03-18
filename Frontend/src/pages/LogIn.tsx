@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { users } from '../assets/users.ts'
+import { accounts } from '../assets/dummydata/accounts.ts'
 import TextInput from '../components/TextInput.tsx'
 
 function LogIn() {
@@ -14,7 +14,7 @@ function LogIn() {
         e.preventDefault()
         setError('')
 
-        const foundUser = users.find(
+        const foundUser = accounts.find(
             (u) => u.username === username && u.password === password
         )
 
