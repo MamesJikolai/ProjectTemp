@@ -1,5 +1,5 @@
 import Message from '../../components/Message.tsx'
-import CampaignModal from '../../components/CampaignModal.tsx'
+import CampaignModal from '../../components/Campaigns/CampaignModal.tsx'
 import DefaultButton from '../../components/DefaultButton.tsx'
 
 import { useState, useCallback } from 'react'
@@ -127,7 +127,7 @@ function Campaigns() {
                 children="Create Campaign"
             />
 
-            <BasicTable data={data} columns={columns} />
+            <BasicTable data={data} columns={columns} tableStyle="w-full" />
 
             {isModalOpen && (
                 <CampaignModal

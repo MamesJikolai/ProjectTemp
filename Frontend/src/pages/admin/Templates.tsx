@@ -1,8 +1,8 @@
 import { useState, useCallback } from 'react'
 import DefaultButton from '../../components/DefaultButton'
 import Message from '../../components/Message'
-import TemplateModal from '../../components/TemplateModal'
-import EmailTemplateCard from '../../components/EmailTemplateCard'
+import TemplateModal from '../../components/Templates/TemplateModal'
+import EmailTemplateCard from '../../components/Templates/EmailTemplateCard'
 
 const emailTemplate = [
     {

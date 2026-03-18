@@ -1,5 +1,5 @@
-import type { Template } from '../pages/admin/Templates'
-import DefaultButton from './DefaultButton'
+import type { Template } from '../../pages/admin/Templates'
+import DefaultButton from '../DefaultButton'
 
 interface EmailTemplateCardProps {
     emailTemplate: Template[]

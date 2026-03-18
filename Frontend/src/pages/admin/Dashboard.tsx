@@ -79,7 +79,11 @@ function Dashboard() {
             ) : data.length === 0 ? (
                 <div>Loading...</div>
             ) : (
-                <BasicTable data={data.slice(0, 5)} columns={columns} />
+                <BasicTable
+                    data={data.slice(0, 5)}
+                    columns={columns}
+                    tableStyle="w-full"
+                />
             )}
             <NavigateButton
                 label="View All"

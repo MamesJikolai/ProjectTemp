@@ -8,9 +8,14 @@ import type { ColumnDef } from '@tanstack/react-table'
 interface BasicTableProps<TData> {
     data: TData[]
     columns: ColumnDef<any, any>[]
+    tableStyle?: string
 }
 
-function BasicTable<TData>({ data, columns }: BasicTableProps<TData>) {
+function BasicTable<TData>({
+    data,
+    columns,
+    tableStyle,
+}: BasicTableProps<TData>) {
     const table = useReactTable({
         data,
         columns,
@@ -19,7 +24,7 @@ function BasicTable<TData>({ data, columns }: BasicTableProps<TData>) {
 
     return (
         <div className="text-[14px] w-full overflow-x-auto">
-            <table>
+            <table className={tableStyle}>
                 <thead>
                     {table.getHeaderGroups().map((headerGroup) => (
                         <tr key={headerGroup.id}>
