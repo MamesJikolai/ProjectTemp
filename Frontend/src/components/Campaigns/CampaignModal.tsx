@@ -26,15 +26,14 @@ function CampaignModal({
     )
     const [date, setDate] = useState(initialData?.date || '')
     const [target, setTarget] = useState(initialData?.target || '')
-    const [subject, setSubject] = useState(initialData?.subject || '')
-    const [body, setBody] = useState(initialData?.body || '')
+    const [template, setTemplate] = useState(initialData?.template || '')
     const [error, setError] = useState('')
 
     const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
         e.preventDefault()
         setError('')
 
-        if (!name || !status || !date || !target || !subject || !body) {
+        if (!name || !status || !date || !target || !template) {
             setError('All fields are required!')
             return
         }
@@ -46,9 +45,8 @@ function CampaignModal({
             status,
             date,
             target,
-            completion: initialData?.completion || '0%', // Keep existing completion or default to 0
-            subject,
-            body,
+            completion: initialData?.completion || 0, // Keep existing completion or default to 0
+            template,
         }
 
         // 3. Send it back up to the parent!
@@ -128,22 +126,12 @@ function CampaignModal({
                 />
 
                 <TextInput
-                    label="Subject"
+                    label="Template"
                     type="text"
-                    placeholder="Email Subject"
-                    value={subject}
-                    onChange={(e) => setSubject(e.target.value)}
+                    placeholder="Email Template"
+                    value={template}
+                    onChange={(e) => setTemplate(e.target.value)}
                     className="w-full"
-                />
-
-                {/* Make sure TextField accepts 'disabled' */}
-                <TextField
-                    label="Body"
-                    placeholder="Email Body"
-                    value={body}
-                    onChange={(e) => setBody(e.target.value)}
-                    className="w-full"
-                    rows={6}
                 />
 
                 <DefaultButton
