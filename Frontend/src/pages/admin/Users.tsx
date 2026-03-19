@@ -18,7 +18,7 @@ export type Users = {
 
 function Users() {
     const openEditModal = (userData: Users) => {
-        //
+        console.log(userData)
     }
     const deleteUser = (userData: Users) => {
         const confirmDelete = window.confirm(

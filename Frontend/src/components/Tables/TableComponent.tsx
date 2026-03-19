@@ -36,8 +36,6 @@ export default function TableComponent<TData>({
     columns,
     isPaginated = true,
 }: TableComponentProps<TData>) {
-    const rerender = React.useReducer(() => ({}), {})[1]
-
     const [columnFilters, setColumnFilters] =
         React.useState<ColumnFiltersState>([])
 

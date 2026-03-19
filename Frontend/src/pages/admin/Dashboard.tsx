@@ -9,7 +9,7 @@ import { courseList } from '../../assets/dummydata/courses.ts'
 import { campaigns } from '../../assets/dummydata/campaigns.ts'
 
 function Dashboard() {
-    const [data, error] = useState<Campaign[]>(campaigns)
+    const [data] = useState<Campaign[]>(campaigns)
 
     // Define table columns to pass into table
     const columns: ColumnDef<Campaign, any>[] = [
