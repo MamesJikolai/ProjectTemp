@@ -1,9 +1,6 @@
-import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import MenuItem from './MenuItem.tsx'
 import { Icons } from '../../assets/icons.ts'
-import { apiService } from '../../services/userService.ts' // Make sure this path is correct
-import type { Accounts } from '../../types/models.ts'
 import { useAuth } from '../../context/AuthContext.tsx'
 
 const navLinksTop = [
