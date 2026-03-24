@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import Message from '../../components/Message.tsx'
-import CourseCard from '../../components/CourseCard.tsx'
+import CourseCard from '../../components/Courses/CourseCard.tsx'
 import { Icons } from '../../assets/icons.ts'
 import { NavLink } from 'react-router-dom'
 import type { Course } from '../../types/models.ts'
@@ -15,7 +15,10 @@ function Home() {
             try {
                 setIsLoading(true)
                 const fetchedData = await apiService.getAll<Course>('courses')
-                setData(fetchedData)
+                const publishedCourses = fetchedData.filter(
+                    (course) => course.is_published
+                )
+                setData(publishedCourses)
             } catch (err) {
                 console.error('Failed to load courses:', err)
             } finally {
@@ -55,8 +58,7 @@ function Home() {
                     <div className="flex flex-wrap justify-center w-full overflow-x-auto gap-4 pb-4">
                         {data.map((item, index) => (
                             <CourseCard
-                                title={item.title}
-                                caption={item.description}
+                                item={item}
                                 key={item.id || index}
                                 customCSS="drop-shadow-md"
                             />

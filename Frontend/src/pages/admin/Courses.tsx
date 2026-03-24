@@ -1,12 +1,23 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import Message from '../../components/Message.tsx'
-import CourseCard from '../../components/CourseCard.tsx'
+import CourseCard from '../../components/Courses/CourseCard.tsx'
+import DefaultButton from '../../components/DefaultButton.tsx'
 import type { Course } from '../../types/models.ts'
 import { apiService } from '../../services/userService.ts'
+import { useAuth } from '../../context/AuthContext.tsx'
+import CourseModal from '../../components/Courses/CourseModal.tsx'
 
 function Courses() {
+    // Grab the logged-in user directly from context
+    const { user } = useAuth()
+    const userRole = user?.role || ''
+
     const [data, setData] = useState<Course[]>([])
     const [isLoading, setIsLoading] = useState(true)
+
+    const [isModalOpen, setIsModalOpen] = useState(false)
+    const [modalMode, setModalMode] = useState<'create' | 'edit'>('create')
+    const [selectedCourse, setSelectedCourse] = useState<Course | null>(null)
 
     useEffect(() => {
         const fetchCourses = async () => {
@@ -24,9 +35,70 @@ function Courses() {
         fetchCourses()
     }, [])
 
+    const openCreateModal = useCallback(() => {
+        setModalMode('create')
+        setSelectedCourse(null)
+        setIsModalOpen(true)
+    }, [])
+
+    const openEditModal = useCallback((courseData: Course) => {
+        setModalMode('edit')
+        setSelectedCourse(courseData)
+        setIsModalOpen(true)
+    }, [])
+
+    const handleDeleteCourse = useCallback(async (courseData: Course) => {
+        const confirmDelete = window.confirm(
+            `Are you sure you want to delete "${courseData.title}"?`
+        )
+        if (confirmDelete) {
+            try {
+                await apiService.delete('courses', courseData.id)
+                setData((prev: Course[]) =>
+                    prev.filter((item) => item.id !== courseData.id)
+                )
+            } catch (err) {
+                console.error('Failed to delete course:', err)
+            }
+        }
+    }, [])
+
+    const handleSaveCourse = async (courseData: Course) => {
+        try {
+            if (modalMode === 'edit') {
+                const updatedCourse = await apiService.update<Course>(
+                    'courses',
+                    courseData.id,
+                    courseData
+                )
+                setData((prev: Course[]) =>
+                    prev.map((item) =>
+                        item.id === updatedCourse.id ? updatedCourse : item
+                    )
+                )
+            } else if (modalMode === 'create') {
+                const newCourse = await apiService.create<Course>(
+                    'courses',
+                    courseData
+                )
+                setData((prevData: Course[]) => [newCourse, ...prevData])
+            }
+        } catch (err) {
+            console.error('Failed to save course:', err)
+        }
+    }
+
     return (
         <div className="flex flex-col items-start m-8">
             <Message text="Courses" />
+
+            {userRole !== 'hr' && (
+                <DefaultButton
+                    className="bg-[#024C89] hover:bg-[#3572A1] text-[#F8F9FA] mb-4"
+                    onClick={openCreateModal}
+                    children="Create Course"
+                />
+            )}
 
             {/* Cards Container */}
             {isLoading ? (
@@ -37,12 +109,24 @@ function Courses() {
                 <div className="flex flex-row flex-wrap justify-center gap-[32px] drop-shadow-md">
                     {data.map((item, index) => (
                         <CourseCard
-                            title={item.title}
-                            caption={item.caption}
+                            item={item}
                             key={index}
+                            openEditModal={() => openEditModal(item)}
+                            handleDeleteCourse={() => handleDeleteCourse}
                         />
                     ))}
                 </div>
+            )}
+
+            {isModalOpen && (
+                <CourseModal
+                    key={selectedCourse ? selectedCourse.id : 'create-modal'}
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    mode={modalMode}
+                    initialData={selectedCourse}
+                    onSave={handleSaveCourse}
+                />
             )}
         </div>
     )

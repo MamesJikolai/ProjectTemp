@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import Message from '../../components/Message.tsx'
-import CourseCard from '../../components/CourseCard.tsx'
+import CourseCard from '../../components/Courses/CourseCard.tsx'
 import type { Course } from '../../types/models.ts'
 import { apiService } from '../../services/userService.ts'
 

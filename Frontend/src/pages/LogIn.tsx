@@ -22,25 +22,11 @@ function LogIn() {
         try {
             const response = await apiService.login({ username, password })
 
-            // Grab the raw user data from the response
+            // Grab the user object (it already has the correct role from Django!)
             const fetchedUser = response.user
 
-            // Derive the role based on Django's flags
-            let derivedRole = 'user'
-            if (fetchedUser.is_superuser) {
-                derivedRole = 'admin'
-            } else if (fetchedUser.is_staff) {
-                derivedRole = 'hr'
-            }
-
-            // Inject the role into a new user object
-            const userWithRole = {
-                ...fetchedUser,
-                role: derivedRole,
-            }
-
-            // 4. Pass the UPDATED user object to your context
-            login(userWithRole)
+            // Pass it directly to context
+            login(fetchedUser)
 
             navigate('/dashboard')
         } catch (err: any) {

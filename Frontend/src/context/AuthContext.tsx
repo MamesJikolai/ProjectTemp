@@ -29,21 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 try {
                     const userData = await apiService.getMe()
 
-                    // Derive the role on page refresh ---
-                    let derivedRole = 'user'
-                    if (userData.is_superuser) {
-                        derivedRole = 'admin'
-                    } else if (userData.is_staff) {
-                        derivedRole = 'hr'
-                    }
-
-                    // Inject the role before setting the state
-                    const userWithRole = {
-                        ...userData,
-                        role: derivedRole,
-                    }
-
-                    setUser(userWithRole)
+                    setUser(userData)
                 } catch (error) {
                     console.error('Session expired or invalid token:', error)
                     localStorage.removeItem('access_token')

@@ -29,16 +29,24 @@ function AdminUsers() {
         fetchAccount()
     }, [])
 
-    const handleSaveAccount = async (accountData: Accounts) => {
+    const handleSaveAccount = async (
+        accountData: Omit<
+            Accounts,
+            'id' | 'is_staff' | 'is_superuser' | 'date_joined'
+        >
+    ) => {
         try {
             const newAccount = await apiService.create<Accounts>(
                 'users',
                 accountData
             )
-
             setData((prevData: Accounts[]) => [newAccount, ...prevData])
-        } catch (err) {
-            console.error('Failed to save account:', err)
+        } catch (err: any) {
+            console.error('Django Validation Error:', err.response?.data)
+
+            alert(
+                'Failed to save user. Check the console for the exact reason!'
+            )
         }
     }
 
@@ -47,12 +55,11 @@ function AdminUsers() {
         { accessorKey: 'first_name', header: 'First Name' },
         { accessorKey: 'last_name', header: 'Last Name' },
         {
-            id: 'role',
+            accessorKey: 'role',
             header: 'Role',
-            accessorFn: (row) => {
-                if (row.is_superuser && row.is_staff) return 'Admin'
-                if (!row.is_superuser && row.is_staff) return 'HR'
-                return 'Standard' // Fallback for regular users (is_staff=false)
+            cell: (info) => {
+                const role = info.getValue() as string
+                return role ? role.charAt(0).toUpperCase() + role.slice(1) : '-'
             },
             meta: { filterVariant: 'select' },
         },

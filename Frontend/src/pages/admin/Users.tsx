@@ -50,7 +50,7 @@ function Users() {
         )
         if (confirmDelete) {
             try {
-                await apiService.delete('userData', userData.id)
+                await apiService.delete('targets', userData.id)
 
                 setData((prev: User[]) =>
                     prev.filter((item) => item.id !== userData.id)
@@ -61,12 +61,12 @@ function Users() {
         }
     }
 
-    const handleSaveUser = async (userData: User) => {
+    const handleSaveUser = async (userData: Partial<User>) => {
         try {
             if (modalMode === 'edit') {
                 const updatedUser = await apiService.update<User>(
-                    'userData',
-                    userData.id,
+                    'targets',
+                    userData.id!,
                     userData
                 )
 
@@ -92,6 +92,11 @@ function Users() {
             {
                 accessorKey: 'department',
                 header: 'Department',
+                meta: { filterVariant: 'select' },
+            },
+            {
+                accessorKey: 'position',
+                header: 'Position',
                 meta: { filterVariant: 'select' },
             },
             {

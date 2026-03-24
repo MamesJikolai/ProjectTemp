@@ -6,44 +6,38 @@ import { useState } from 'react'
 interface AdminUsersModalProps {
     isOpen: boolean
     onClose: () => void
-    onSave: (account: Accounts) => void
+    onSave: (
+        account: Omit<
+            Accounts,
+            'id' | 'is_staff' | 'is_superuser' | 'date_joined'
+        >
+    ) => void
 }
 
 function AdminUserModal({ isOpen, onClose, onSave }: AdminUsersModalProps) {
     const [username, setUsername] = useState('')
-    const [firstName, setFirstName] = useState('')
-    const [lastName, setLastName] = useState('')
+    const [first_name, setFirstName] = useState('')
+    const [last_name, setLastName] = useState('')
     const [role, setRole] = useState('')
     const [email, setEmail] = useState('')
-    const [organization, setOrganization] = useState('')
     const [error, setError] = useState('')
 
     const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
         e.preventDefault()
         setError('')
 
-        if (
-            !username ||
-            !firstName ||
-            !lastName ||
-            !role ||
-            !email ||
-            !organization
-        ) {
+        if (!username || !first_name || !last_name || !role || !email) {
             setError('All fields are required!')
             return
         }
 
         const accountDataToSave = {
-            id: Date.now(), // Generate a fake ID if creating
             username,
-            password: '',
-            firstName,
-            lastName,
-            role,
+            password: 'TemporaryPassword123!',
+            first_name,
+            last_name,
             email,
-            organization,
-            created: new Date().toLocaleString(),
+            role,
         }
 
         onSave(accountDataToSave)
@@ -85,7 +79,7 @@ function AdminUserModal({ isOpen, onClose, onSave }: AdminUsersModalProps) {
                     label="First Name"
                     type="text"
                     placeholder="First Name"
-                    value={firstName}
+                    value={first_name}
                     onChange={(e) => setFirstName(e.target.value)}
                     className="w-full"
                 />
@@ -94,19 +88,28 @@ function AdminUserModal({ isOpen, onClose, onSave }: AdminUsersModalProps) {
                     label="Last Name"
                     type="text"
                     placeholder="Last Name"
-                    value={lastName}
+                    value={last_name}
                     onChange={(e) => setLastName(e.target.value)}
                     className="w-full"
                 />
 
-                <TextInput
-                    label="Role"
-                    type="text"
-                    placeholder="Role"
-                    value={role}
-                    onChange={(e) => setRole(e.target.value)}
-                    className="w-full"
-                />
+                <div className="flex flex-col gap-1 w-full text-left">
+                    <label className="text-sm font-semibold text-gray-700">
+                        Role
+                    </label>
+                    <select
+                        value={role}
+                        onChange={(e) => setRole(e.target.value)}
+                        className="text-[#4A4A4A] w-full border-2 border-[#DDE2E5] rounded-4xl px-3 py-2 focus:outline-none focus:border-[#024C89] transition-colors"
+                        required
+                    >
+                        <option value="" disabled>
+                            Select a role...
+                        </option>
+                        <option value="admin">Admin</option>
+                        <option value="hr">HR</option>
+                    </select>
+                </div>
 
                 <TextInput
                     label="Email"
@@ -114,15 +117,6 @@ function AdminUserModal({ isOpen, onClose, onSave }: AdminUsersModalProps) {
                     placeholder="Email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full"
-                />
-
-                <TextInput
-                    label="Organization"
-                    type="text"
-                    placeholder="Organization"
-                    value={organization}
-                    onChange={(e) => setOrganization(e.target.value)}
                     className="w-full"
                 />
 

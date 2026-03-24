@@ -14,11 +14,11 @@ export default function getCellClasses(cell: any) {
             return `${baseBadge} bg-green-100 text-green-800`
         if (cellValue === 'cancelled')
             return `${baseBadge} bg-red-100 text-red-800`
-        if (cellValue === 'active')
+        if (cellValue === 'running')
             return `${baseBadge} bg-cyan-100 text-cyan-800`
         if (cellValue === 'draft')
             return `${baseBadge} bg-purple-100 text-purple-800`
-        if (cellValue === 'scheduled')
+        if (cellValue === 'paused')
             return `${baseBadge} bg-yellow-100 text-yellow-800`
     } else if (columnId === 'emailstatus') {
         if (cellValue === 'sent')

@@ -34,20 +34,28 @@ export interface Campaign {
 export interface Lesson {
     id: number
     title: string
-    duration: string
-    videoUrl: string
+    description: string
+    video_file: string
+    video_url: string
+    video_source: string
+    content_html: string
+    order: number
+    duration_minutes: number
 }
 
 export interface Course {
     id: number
     title: string
+    caption: string
     description: string
-    totalLessons: number
-    thumbnailL: string
-    creaetedAt: string
-    updatedAt: string
-    published: boolean
+    thumbnail: string
+    is_published: boolean
+    total_lessons: number
+    has_quiz: true
     lessons: Lesson[]
+    quiz: string
+    created_at: string
+    updated_at: string
 }
 
 export interface EmailTemplate {

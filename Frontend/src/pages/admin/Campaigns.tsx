@@ -10,7 +10,7 @@ import { useAuth } from '../../context/AuthContext.tsx'
 import { formatDate } from '../../utils/formatters.ts'
 
 function Campaigns() {
-    // 2. Grab the logged-in user directly from context
+    // Grab the logged-in user directly from context
     const { user } = useAuth()
     const userRole = user?.role || ''
 
@@ -67,10 +67,6 @@ function Campaigns() {
             }
         }
     }, [])
-
-    const handleLaunchCampaign = () => {
-        // Implementation for later
-    }
 
     const handleSaveCampaign = async (campaignData: Campaign) => {
         try {

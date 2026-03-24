@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import CourseCard from '../../components/CourseCard.tsx'
+import CourseCard from '../../components/Courses/CourseCard.tsx'
 import Message from '../../components/Message.tsx'
 import NavigateButton from '../../components/NavigateButton.tsx'
 import type { ColumnDef } from '@tanstack/react-table'
@@ -46,6 +46,14 @@ function Dashboard() {
             accessorKey: 'total_targets',
             header: 'Target',
             enableColumnFilter: false,
+        },
+        {
+            accessorKey: 'email_template_name', // Changed from 'template'
+            header: 'Template',
+            cell: (info) =>
+                info.getValue() || (
+                    <span className="text-gray-400 italic">None</span>
+                ),
         },
         {
             accessorKey: 'created_at',
@@ -103,11 +111,7 @@ function Dashboard() {
             ) : (
                 <div className="flex justify-start w-full overflow-x-auto gap-4 pb-4">
                     {courseData.slice(0, 5).map((item, index) => (
-                        <CourseCard
-                            title={item.title}
-                            caption={item.description}
-                            key={index}
-                        />
+                        <CourseCard item={item} key={index} />
                     ))}
                 </div>
             )}
