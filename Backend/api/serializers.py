@@ -138,7 +138,11 @@ class CourseDetailSerializer(serializers.ModelSerializer):
 
 
 class CoursePublicSerializer(serializers.ModelSerializer):
-    """Employee-facing — includes lessons and quiz without answers."""
+    """
+    Employee/unauthenticated-facing serializer.
+    Excludes is_published, created_at, updated_at — employees don't need them.
+    Excludes correct answers from quiz choices.
+    """
     lessons       = LessonSerializer(many=True, read_only=True)
     quiz          = QuizPublicSerializer(read_only=True)
     total_lessons = serializers.IntegerField(read_only=True)
@@ -147,7 +151,7 @@ class CoursePublicSerializer(serializers.ModelSerializer):
         model  = Course
         fields = [
             'id', 'title', 'caption', 'description', 'thumbnail',
-            'total_lessons', 'lessons', 'quiz',
+            'total_lessons', 'has_quiz', 'lessons', 'quiz',
         ]
 
 

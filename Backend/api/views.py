@@ -405,13 +405,17 @@ class CourseViewSet(viewsets.ModelViewSet):
     ordering        = ['-created_at']
 
     def get_permissions(self):
+        # Write actions — admin only
         if self.action in ('create', 'update', 'partial_update', 'destroy'):
             return [IsAdminRole()]
-        return [IsAdminOrHRReadOnly()]
+        # Read actions — allow anyone (unauthenticated users see published only)
+        return [AllowAny()]
 
     def get_queryset(self):
-        if self.request.user.is_staff:
+        # Authenticated staff/admin → see all courses
+        if self.request.user and self.request.user.is_authenticated and self.request.user.is_staff:
             return Course.objects.prefetch_related('lessons', 'quiz__questions__choices').all()
+        # Everyone else (unauthenticated employees, HR) → published only
         return Course.objects.filter(is_published=True).prefetch_related(
             'lessons', 'quiz__questions__choices'
         )
@@ -844,10 +848,15 @@ from django.core.mail.backends.smtp import EmailBackend as SMTPBackend
 
 class PlatformSettingsView(APIView):
     """
-    GET  /api/v1/settings/   — retrieve current settings
-    PATCH /api/v1/settings/  — update settings (admin only)
+    GET   /api/v1/settings/  — public, no auth needed (used by phishing landing page)
+    PATCH /api/v1/settings/  — admin only
     """
-    permission_classes = [IsAdminOrHRReadOnly]
+    permission_classes = []   # handled per-method below
+
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [AllowAny()]
+        return [IsAdminOrHRReadOnly()]
 
     def get(self, request):
         settings_obj = PlatformSettings.get()
@@ -856,6 +865,8 @@ class PlatformSettingsView(APIView):
         )
 
     def patch(self, request):
+        if not request.user.is_authenticated:
+            return Response({'error': 'Authentication required.'}, status=401)
         if getattr(request.user, 'role', None) != 'admin':
             return Response({'error': 'Only Admin users can change platform settings.'}, status=403)
 
