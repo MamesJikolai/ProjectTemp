@@ -10,13 +10,13 @@ function SMTPConfigurationForm() {
 
     const handleSmtpConfigChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target
-        setSmtpConfig((prev) =>
-            prev
-                ? {
-                      ...prev,
-                      [name]: type === 'checkbox' ? checked : value,
-                  }
-                : null
+
+        setSmtpConfig(
+            (prev) =>
+                ({
+                    ...(prev || {}),
+                    [name]: type === 'checkbox' ? checked : value,
+                }) as SMTPTest
         )
     }
 
