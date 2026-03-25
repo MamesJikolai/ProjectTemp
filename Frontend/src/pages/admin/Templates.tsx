@@ -55,7 +55,7 @@ function Templates() {
         try {
             if (modalMode === 'edit') {
                 const updatedTemplate = await apiService.update<EmailTemplate>(
-                    'emailTemplate',
+                    'templates',
                     templateData.id,
                     templateData
                 )
@@ -67,7 +67,7 @@ function Templates() {
                 )
             } else if (modalMode === 'create') {
                 const newTemplate = await apiService.create<EmailTemplate>(
-                    'emailTemplate',
+                    'templates',
                     templateData
                 )
 
@@ -88,7 +88,7 @@ function Templates() {
             )
             if (confirmDelete) {
                 try {
-                    await apiService.delete('emailTemplate', templateData.id)
+                    await apiService.delete('templates', templateData.id)
 
                     setData((prev: EmailTemplate[]) =>
                         prev.filter((item) => item.id !== templateData.id)

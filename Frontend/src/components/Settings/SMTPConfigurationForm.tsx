@@ -4,6 +4,10 @@ import TextInput from '../TextInput'
 import type { SMTPTest } from '../../types/models'
 import { apiService } from '../../services/userService'
 
+interface SMTPConfigurationFormProps {
+    mode?: 'campaign'
+}
+
 const initialConfig: SMTPTest = {
     smtp_host: '',
     smtp_port: 587,
@@ -15,7 +19,7 @@ const initialConfig: SMTPTest = {
     smtp_use_tls: false,
 }
 
-function SMTPConfigurationForm() {
+function SMTPConfigurationForm({ mode }: SMTPConfigurationFormProps) {
     const [smtpConfig, setSmtpConfig] = useState<SMTPTest>(initialConfig)
     const [smtpError, setSmtpError] = useState('')
 
@@ -64,7 +68,7 @@ function SMTPConfigurationForm() {
 
     return (
         <div>
-            <h2 className="mb-2">Test SMTP Connection</h2>
+            {!mode && <h2 className="mb-2">Test SMTP Connection</h2>}
 
             <form
                 onSubmit={handleSmtpConfigSubmit}

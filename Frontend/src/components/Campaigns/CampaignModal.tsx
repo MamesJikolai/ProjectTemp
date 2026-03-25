@@ -15,8 +15,21 @@ interface CampaignModalProps {
 
 const getInitialDate = (dateString?: string | null) => {
     if (!dateString) return ''
-    // Slices the string to keep only 'YYYY-MM-DDThh:mm'
-    return new Date(dateString).toISOString().slice(0, 16)
+
+    const d = new Date(dateString)
+
+    // Fallback if the date is invalid
+    if (isNaN(d.getTime())) return ''
+
+    // Extract local time parts and pad them with leading zeros
+    const year = d.getFullYear()
+    const month = String(d.getMonth() + 1).padStart(2, '0')
+    const day = String(d.getDate()).padStart(2, '0')
+    const hours = String(d.getHours()).padStart(2, '0')
+    const minutes = String(d.getMinutes()).padStart(2, '0')
+
+    // Returns exact format required by <input type="datetime-local">
+    return `${year}-${month}-${day}T${hours}:${minutes}`
 }
 
 function CampaignModal({
@@ -70,7 +83,7 @@ function CampaignModal({
         e.preventDefault()
         setError('')
 
-        if (!name || !status || !date) {
+        if (!name || !status) {
             setError('Name, status, and date are required!')
             return
         }
@@ -79,12 +92,15 @@ function CampaignModal({
             return
         }
 
+        const formattedDateForBackend = date
+            ? new Date(date).toISOString()
+            : null
+
         const campaignDataToSave: Partial<Campaign> = {
             ...(initialData && { id: initialData.id }),
             name,
             status,
-            scheduled_at: date,
-            // Django expects the foreign key ID for the relationship
+            scheduled_at: formattedDateForBackend,
             email_template: selectedTemplateId
                 ? Number(selectedTemplateId)
                 : null,

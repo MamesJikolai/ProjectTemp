@@ -1,7 +1,7 @@
 import DefaultButton from '../DefaultButton.tsx'
 import TextInput from '../TextInput.tsx'
 import type { EmailTemplate } from '../../types/models.ts'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import TextField from '../TextField.tsx'
 
 interface TemplateModalProps {
@@ -95,7 +95,7 @@ function TemplateModal({
                     value={author}
                     onChange={(e) => setAuthor(e.target.value)}
                     className="w-full"
-                    disabled={isViewOnly}
+                    disabled={isViewOnly || mode === 'edit'}
                 />
 
                 <TextInput
@@ -120,6 +120,7 @@ function TemplateModal({
 
                 <TextField
                     label="Body"
+                    description={bodyDescription}
                     placeholder="Email Body"
                     value={body_html}
                     onChange={(e) => setBody(e.target.value)}
@@ -143,3 +144,52 @@ function TemplateModal({
 }
 
 export default TemplateModal
+
+const availableVariables = [
+    '{{ target_name }}',
+    '{{ target_email }}',
+    '{{ target_department }}',
+    '{{ phishing_link }}',
+    '{{ company_name }}',
+    '{{ campaign_name }}',
+]
+
+const bodyDescription = (
+    <div className="flex flex-col gap-4 mt-2">
+        <div>
+            <span className="font-medium text-[#121212] block mb-2">
+                Available variables:
+            </span>
+            <div className="flex flex-wrap gap-2">
+                {availableVariables.map((variable) => (
+                    <code
+                        key={variable}
+                        className="bg-gray-100 border border-gray-200 text-gray-800 px-2 py-1 rounded-md font-mono text-xs"
+                    >
+                        {variable}
+                    </code>
+                ))}
+            </div>
+        </div>
+
+        <div className="bg-blue-50/50 border border-blue-100 p-3 rounded-xl">
+            <span className="font-medium text-[#121212] block mb-1">
+                Clickable link with custom text:
+            </span>
+            <p className="mb-1 text-[#4a4a4a]">
+                Use{' '}
+                <code className="bg-[#F8F9FA] px-1 py-0.5 rounded border border-gray-200 font-mono text-xs">
+                    [display text](url)
+                </code>{' '}
+                syntax.
+            </p>
+            <p className="text-[#4a4a4a] text-xs mt-2 italic">
+                e.g. Click{' '}
+                <code className="bg-[#F8F9FA] px-1 py-0.5 rounded border border-gray-200 font-mono text-xs not-italic">
+                    [here]({'{{ phishing_link }}'})
+                </code>{' '}
+                to verify your account
+            </p>
+        </div>
+    </div>
+)

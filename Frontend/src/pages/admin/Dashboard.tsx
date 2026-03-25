@@ -134,31 +134,27 @@ function Dashboard() {
         <div className="flex flex-col items-start p-8 overflow-x-hidden max-w-full">
             <Message text="Dashboard" />
 
-            <div className="flex flex-col gap-8">
-                {analyticsData && (
-                    <div className="flex flex-row flex-wrap gap-4">
-                        {summaryMetrics.map((metric, index) => (
-                            <AnalyticsCards
-                                key={index}
-                                text={metric.label}
-                                item={metric.value}
-                            />
-                        ))}
-                    </div>
-                )}
-                {/* <div className="flex justify-start w-full overflow-x-auto gap-4 pb-4">
-                    <div className="bg-red-200 w-[300px] h-[300px] shrink-0"></div>
-                    <div className="bg-red-200 w-[300px] h-[300px] shrink-0"></div>
-                    <div className="bg-red-200 w-[300px] h-[300px] shrink-0"></div>
-                    <div className="bg-red-200 w-[300px] h-[300px] shrink-0"></div>
-                    <div className="bg-red-200 w-[300px] h-[300px] shrink-0"></div>
-                </div> */}
+            <div className="flex flex-col gap-4">
+                <div className="pb-4">
+                    {analyticsData && (
+                        <div className="flex flex-row flex-wrap gap-4">
+                            {summaryMetrics.map((metric, index) => (
+                                <AnalyticsCards
+                                    key={index}
+                                    text={metric.label}
+                                    item={metric.value}
+                                />
+                            ))}
+                        </div>
+                    )}
+                </div>
+
                 {isLoading ? (
                     <div className="py-8 text-gray-500 animate-pulse">
                         Loading Courses...
                     </div>
                 ) : (
-                    <div className="flex justify-start w-full overflow-x-auto gap-4 pb-4">
+                    <div className="flex justify-start w-full overflow-x-auto gap-4 pb-8">
                         {courseData.slice(0, 5).map((item, index) => (
                             <CourseCard item={item} key={index} />
                         ))}

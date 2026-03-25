@@ -14,6 +14,13 @@ export const getEmbedUrl = (url: string | undefined) => {
         return `https://www.youtube.com/embed/${videoId}`
     }
 
+    // Handle Google Drive URLs
+    if (url.includes('drive.google.com')) {
+        // Matches the ID between '/d/' and the next '/'
+        const driveId = url.match(/\/d\/([^/]+)/)?.[1]
+        return driveId ? `https://drive.google.com{driveId}/preview` : url
+    }
+
     // Handle standard Vimeo URLs
     if (url.includes('vimeo.com') && !url.includes('player.vimeo.com')) {
         // Converts vimeo.com/123456 to player.vimeo.com/video/123456

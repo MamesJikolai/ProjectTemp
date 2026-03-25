@@ -226,6 +226,28 @@ export const apiService = {
         return response.data
     },
 
+    /**
+     * GENERIC FILE UPLOAD: Uploads a file using FormData
+     * @param endpoint The full endpoint path (e.g., 'courses/1/upload-thumbnail/')
+     * @param formData The FormData object containing the file
+     */
+    uploadFile: async <T>(endpoint: string, formData: FormData): Promise<T> => {
+        if (USE_MOCK_DATA) {
+            console.log(`[MOCK POST] Uploading file to ${endpoint}:`, formData)
+            // Return a mock object (you might need to adjust this depending on what the UI expects)
+            return {} as T
+        }
+
+        const response = await apiClient.post<T>(endpoint, formData, {
+            headers: {
+                // Axios will usually set the boundary automatically for FormData,
+                // but explicitly setting the content type is standard practice.
+                'Content-Type': 'multipart/form-data',
+            },
+        })
+        return response.data
+    },
+
     // Add this inside your apiService object
     uploadCsv: async (campaignId: string | number, file: File) => {
         const formData = new FormData()

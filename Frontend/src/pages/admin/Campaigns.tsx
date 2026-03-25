@@ -136,6 +136,12 @@ function Campaigns() {
                     ),
             },
             {
+                accessorKey: 'scheduled_at', // Changed from 'date'
+                header: 'Scheduled',
+                enableColumnFilter: false,
+                cell: (info) => formatDate(info.getValue() as string),
+            },
+            {
                 accessorKey: 'created_at', // Changed from 'date'
                 header: 'Created',
                 enableColumnFilter: false,

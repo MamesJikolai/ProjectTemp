@@ -26,7 +26,7 @@ export interface Campaign {
     smtp_use_tls: boolean
     smtp_use_ssl: boolean
     from_email: string
-    scheduled_at: string
+    scheduled_at: string | null
     created_at: string
     launched_at: string
     completed_at: string
