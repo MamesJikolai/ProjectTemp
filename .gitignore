@@ -18,6 +18,11 @@ dist-ssr
 .env
 # .env.*
 **/.env
+venv/
+.venv/
+
+# MEDIA FILES
+Backend/media/
 
 # SYSTEM FILES
 .DS_Store
