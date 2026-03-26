@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'apps.settings_app',
     'django_q',
     'nested_admin',
+    'django_cleanup.apps.CleanupConfig'
 ]
 
 MIDDLEWARE = [

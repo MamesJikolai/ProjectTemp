@@ -15,7 +15,7 @@ class LessonInline(admin.StackedInline):
     show_change_link = True
     fields      = (
         'title', 'description', 'order', 'duration_minutes',
-        'video_url', 'video_file', 'content_html',
+        'video_url', 'content_html',
     )
 
 
@@ -74,10 +74,9 @@ class LessonAdmin(admin.ModelAdmin):
             'fields': ('course', 'title', 'description', 'order', 'duration_minutes'),
         }),
         ('Video', {
-            'fields': ('video_url', 'video_file'),
+            'fields': ('video_url',),
             'description': (
-                'Provide either a video URL (YouTube embed link) or upload a file. '
-                'If both are set, the uploaded file takes priority.'
+                'Paste a YouTube embed URL or any direct video link.'
             ),
         }),
         ('Reading Material', {

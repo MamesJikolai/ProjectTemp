@@ -2,6 +2,7 @@ Django
 djangorestframework
 djangorestframework-simplejwt
 django-nested-admin
+django-cleanup
 django-axes
 django-cors-headers
 django-filter

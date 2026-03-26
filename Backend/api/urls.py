@@ -14,6 +14,11 @@ router.register(
     basename='campaign-target',
 )
 router.register(r'courses', views.CourseViewSet, basename='course')
+router.register(
+    r'courses/(?P<course_pk>[^/.]+)/lessons',
+    views.LessonViewSet,
+    basename='course-lesson',
+)
 
 urlpatterns = [
     # ── Router-generated URLs ──────────────────────────────────────────────────

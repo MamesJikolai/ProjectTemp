@@ -183,9 +183,6 @@ class CampaignListSerializer(serializers.ModelSerializer):
     email_template_name   = serializers.CharField(
         source='email_template.name', read_only=True, default=None
     )
-    assigned_course_title = serializers.CharField(
-        source='assigned_course.title', read_only=True, default=None
-    )
     created_by_username   = serializers.CharField(
         source='created_by.username', read_only=True, default=None
     )
@@ -200,7 +197,6 @@ class CampaignListSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'name', 'description', 'status',
             'email_template', 'email_template_name',
-            'assigned_course', 'assigned_course_title',
             'from_email', 'created_by_username',
             'total_targets', 'emails_sent', 'links_clicked',
             'lms_completed', 'click_rate',
@@ -209,32 +205,26 @@ class CampaignListSerializer(serializers.ModelSerializer):
 
 
 class CampaignDetailSerializer(serializers.ModelSerializer):
-    targets               = CampaignTargetSerializer(many=True, read_only=True)
-    email_template_name   = serializers.CharField(
-        source='email_template.name', read_only=True, default=None
-    )
-    assigned_course_title = serializers.CharField(
-        source='assigned_course.title', read_only=True, default=None
-    )
-    total_targets  = serializers.IntegerField(read_only=True)
-    emails_sent    = serializers.IntegerField(read_only=True)
-    links_clicked  = serializers.IntegerField(read_only=True)
-    lms_completed  = serializers.IntegerField(read_only=True)
-    click_rate     = serializers.FloatField(read_only=True)
-    # Write-only field for SMTP password — never returned in responses
-    smtp_password  = serializers.CharField(
-        write_only=True, required=False, allow_blank=True, default=''
+    targets = CampaignTargetSerializer(many=True, read_only=True)
+
+    email_template_name = serializers.CharField(
+        source='email_template.name',
+        read_only=True,
+        default=None
     )
 
+    total_targets = serializers.IntegerField(read_only=True)
+    emails_sent = serializers.IntegerField(read_only=True)
+    links_clicked = serializers.IntegerField(read_only=True)
+    lms_completed = serializers.IntegerField(read_only=True)
+    click_rate = serializers.FloatField(read_only=True)
+
     class Meta:
-        model  = Campaign
+        model = Campaign
         fields = [
             'id', 'name', 'description', 'status',
             'email_template', 'email_template_name',
-            'assigned_course', 'assigned_course_title',
-            'smtp_host', 'smtp_port', 'smtp_user',
-            'smtp_password', 'smtp_use_tls', 'smtp_use_ssl',
-            'from_email', 'scheduled_at',
+            'scheduled_at',
             'created_at', 'launched_at', 'completed_at',
             'total_targets', 'emails_sent', 'links_clicked',
             'lms_completed', 'click_rate',
@@ -242,32 +232,72 @@ class CampaignDetailSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = [
             'id', 'status', 'created_at', 'launched_at', 'completed_at',
-            'email_template_name', 'assigned_course_title',
+            'email_template_name',
         ]
         extra_kwargs = {
-            'email_template':  {'required': False, 'allow_null': True},
+            'email_template': {'required': False, 'allow_null': True},
             'assigned_course': {'required': False, 'allow_null': True},
-            'description':     {'required': False, 'allow_blank': True, 'default': ''},
-            'scheduled_at':    {'required': False, 'allow_null': True},
-            'smtp_host':       {'required': False, 'allow_blank': True, 'default': ''},
-            'smtp_user':       {'required': False, 'allow_blank': True, 'default': ''},
-            'from_email':      {'required': False, 'allow_blank': True, 'default': ''},
+            'description': {'required': False, 'allow_blank': True, 'default': ''},
+            'scheduled_at': {'required': False, 'allow_null': True},
         }
 
     def create(self, validated_data):
-        password = validated_data.pop('smtp_password', '')
         campaign = Campaign(**validated_data)
-        campaign.smtp_password = password
-        campaign.created_by    = self.context['request'].user
+        campaign.created_by = self.context['request'].user
         campaign.save()
         return campaign
 
     def update(self, instance, validated_data):
-        password = validated_data.pop('smtp_password', '')
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
-        if password:
+
+        instance.save()
+        return instance
+    
+class CampaignSMTPSerializer(serializers.ModelSerializer):
+    smtp_password = serializers.CharField(
+        write_only=True,
+        required=False,
+        allow_blank=True
+    )
+
+    class Meta:
+        model = Campaign
+        fields = [
+            'smtp_host', 'smtp_port', 'smtp_user', 'smtp_password', 
+            'smtp_use_tls', 'smtp_use_ssl', 'from_email',
+        ]
+
+    def validate(self, data):
+        """
+        Ensure SMTP config is complete when being set.
+        """
+        instance = self.instance
+
+        required_fields = ['smtp_host', 'smtp_port', 'smtp_user', 'from_email']
+
+        missing = []
+        for field in required_fields:
+            value = data.get(field) or getattr(instance, field, None)
+            if not value:
+                missing.append(field)
+
+        if missing:
+            raise serializers.ValidationError({
+                "error": f"Incomplete SMTP configuration. Missing: {', '.join(missing)}"
+            })
+
+        return data
+
+    def update(self, instance, validated_data):
+        password = validated_data.pop('smtp_password', None)
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        if password:  # only update if provided
             instance.smtp_password = password
+
         instance.save()
         return instance
 

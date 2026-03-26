@@ -343,7 +343,7 @@ def action_reset_draft(modeladmin, request, queryset):
 class CampaignAdmin(admin.ModelAdmin):
     form = CampaignAdminForm
     list_display = (
-        'name', 'status_badge', 'email_template', 'assigned_course',
+        'name', 'status_badge', 'email_template',
         'total_targets_display', 'emails_sent_display',
         'links_clicked_display', 'click_rate_display',
         'created_by', 'created_at',
@@ -625,7 +625,7 @@ class CampaignAdmin(admin.ModelAdmin):
         ('Campaign Details', {
             'fields': (
                 'name', 'description', 'status',
-                'email_template', 'assigned_course',
+                'email_template',
                 'created_by', 'scheduled_at',
             )
         }),

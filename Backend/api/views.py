@@ -28,8 +28,9 @@ from .serializers import (
     UserSerializer,
     EmailTemplateSerializer,
     CampaignListSerializer, CampaignDetailSerializer,
-    CampaignTargetSerializer,
+    CampaignTargetSerializer, CampaignSMTPSerializer,
     CourseListSerializer, CourseDetailSerializer, CoursePublicSerializer,
+    LessonSerializer,
     LessonSerializer,
     QuizSerializer,
     LessonProgressSerializer, QuizAttemptSerializer,
@@ -289,6 +290,32 @@ class CampaignViewSet(viewsets.ModelViewSet):
         campaign.completed_at = timezone.now()
         campaign.save(update_fields=['status', 'completed_at'])
         return Response({'status': 'completed'})
+    
+    @action(
+        detail=True,
+        methods=['get', 'patch'],
+        url_path='smtp',
+        permission_classes=[IsAdminUser]
+    )
+    def smtp(self, request, pk=None):
+        campaign = self.get_object()
+
+        if request.method == 'GET':
+            serializer = CampaignSMTPSerializer(campaign)
+            return Response(serializer.data)
+
+        elif request.method == 'PATCH':
+            serializer = CampaignSMTPSerializer(
+                campaign,
+                data=request.data,
+                partial=True
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+
+            return Response({
+                'status': 'smtp configuration updated'
+            }, status=status.HTTP_200_OK)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -423,6 +450,14 @@ class CourseViewSet(viewsets.ModelViewSet):
         )
 
     def get_serializer_class(self):
+        # # Unauthenticated users (employees from phishing links) get the
+        # # public serializer which excludes is_published and admin fields
+        # is_authenticated = (
+        #     self.request.user and
+        #     self.request.user.is_authenticated
+        # )
+        # if not is_authenticated:
+        #     return CoursePublicSerializer
         if self.action == 'list':
             return CourseListSerializer
         return CourseDetailSerializer
@@ -477,6 +512,37 @@ class CourseViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK,
         )
 
+
+# ── Lesson ViewSet ────────────────────────────────────────────────────────────
+
+class LessonViewSet(viewsets.ModelViewSet):
+    """
+    CRUD for lessons nested under courses.
+    GET    /api/v1/courses/<course_pk>/lessons/          — list lessons
+    POST   /api/v1/courses/<course_pk>/lessons/          — add lesson (admin only)
+    GET    /api/v1/courses/<course_pk>/lessons/<id>/     — retrieve
+    PATCH  /api/v1/courses/<course_pk>/lessons/<id>/     — update (admin only)
+    DELETE /api/v1/courses/<course_pk>/lessons/<id>/     — delete (admin only)
+    """
+    serializer_class   = LessonSerializer
+    filter_backends    = [filters.OrderingFilter]
+    ordering_fields    = ['order', 'title']
+    ordering           = ['order']
+    http_method_names  = ['get', 'post', 'patch', 'delete', 'head', 'options']
+
+    def get_permissions(self):
+        if self.action in ('create', 'update', 'partial_update', 'destroy'):
+            return [IsAdminRole()]
+        return [AllowAny()]
+
+    def get_queryset(self):
+        return Lesson.objects.filter(course_id=self.kwargs['course_pk'])
+
+    def perform_create(self, serializer):
+        course = Course.objects.get(pk=self.kwargs['course_pk'])
+        serializer.save(course=course)
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # LMS — Employee-facing (no login, token-gated)
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -484,86 +550,113 @@ class CourseViewSet(viewsets.ModelViewSet):
 class LMSSessionView(APIView):
     """
     POST /api/v1/lms/session/
-    Body: { "token": "<uuid>" }
+    Body: { "token": "<uuid>", "course_id": <int> (optional) }
 
-    Called by React when an employee lands on /lms?token=<uuid>
-    Returns the course content for that campaign.
-    Records lms_started_at on first call.
+    Called by React when an employee starts or resumes a course.
+
+    Without course_id  — returns the target info and list of all available
+                         published courses so the frontend can show a course picker.
+    With course_id     — returns full course content + this employee's progress
+                         in that specific course.
+
+    Progress is tracked per (target, lesson) and (target, quiz) regardless of
+    which campaign sent the employee — removing assigned_course from campaigns
+    does not break progress tracking.
     """
     permission_classes = [AllowAny]
 
     def post(self, request):
-        token = request.data.get('token')
+        token     = request.data.get('token')
+        course_id = request.data.get('course_id')
+
         if not token:
             return Response({'error': 'Token is required.'}, status=400)
 
         try:
-            target = CampaignTarget.objects.select_related(
-                'campaign__assigned_course'
-            ).get(token=token)
+            target = CampaignTarget.objects.select_related('campaign').get(token=token)
         except CampaignTarget.DoesNotExist:
             return Response({'error': 'Invalid or expired link.'}, status=404)
 
         if not target.link_clicked_at:
             return Response({'error': 'Invalid or expired link.'}, status=404)
 
-        # Record LMS start
+        # Record first LMS access
         if not target.lms_started_at:
             target.lms_started_at = timezone.now()
             target.save(update_fields=['lms_started_at'])
 
-        course = target.campaign.assigned_course
-        if not course:
+        target_name = target.full_name or target.email.split('@')[0]
+
+        # ── No course_id — return course list for the picker ──────────────────
+        if not course_id:
+            courses = Course.objects.filter(is_published=True).prefetch_related(
+                'lessons'
+            )
             return Response({
                 'target_id':   target.id,
-                'target_name': target.full_name or target.email.split('@')[0],
+                'target_name': target_name,
+                'campaign_name': target.campaign.name,
                 'course':      None,
-                'message':     'No training course is assigned to this campaign.',
+                'courses':     CoursePublicSerializer(
+                                   courses, many=True, context={'request': request}
+                               ).data,
+                'message':     'Please select a course to begin your training.',
             })
 
-        # Course must be published to be delivered to employees
-        if not course.is_published:
-            return Response({
-                'target_id':   target.id,
-                'target_name': target.full_name or target.email.split('@')[0],
-                'course':      None,
-                'message':     'The training course is not yet available. Please check back later.',
-            })
+        # ── With course_id — load course + progress ───────────────────────────
+        try:
+            course = Course.objects.prefetch_related(
+                'lessons', 'quiz__questions__choices'
+            ).get(id=course_id, is_published=True)
+        except Course.DoesNotExist:
+            return Response({'error': 'Course not found or not available.'}, status=404)
 
-        # Build per-lesson progress
-        progress_qs = LessonProgress.objects.filter(target=target, lesson__course=course)
+        # Per-lesson progress for this employee in this course
+        progress_qs  = LessonProgress.objects.filter(
+            target=target, lesson__course=course
+        )
         progress_map = {lp.lesson_id: lp for lp in progress_qs}
 
         lessons_data = []
         for lesson in course.lessons.all():
             lp = progress_map.get(lesson.id)
             lessons_data.append({
-                'id':           lesson.id,
-                'title':        lesson.title,
-                'description':  lesson.description,
-                'video_source': lesson.video_source,
-                'content_html': lesson.content_html,
-                'order':        lesson.order,
+                'id':               lesson.id,
+                'title':            lesson.title,
+                'description':      lesson.description,
+                'video_source':     lesson.video_source,
+                'content_html':     lesson.content_html,
+                'order':            lesson.order,
                 'duration_minutes': lesson.duration_minutes,
-                'completed':    lp.is_completed if lp else False,
+                'completed':        lp.is_completed if lp else False,
             })
 
         completed_lessons = sum(1 for l in lessons_data if l['completed'])
         total_lessons     = len(lessons_data)
+        all_lessons_done  = total_lessons > 0 and completed_lessons >= total_lessons
 
+        # Best quiz attempt for this employee in this course
         quiz_attempt = QuizAttempt.objects.filter(
             target=target, quiz__course=course
         ).order_by('-submitted_at').first()
 
+        # Mark lms_completed_at when all lessons done AND quiz passed
+        if all_lessons_done and quiz_attempt and quiz_attempt.passed:
+            if not target.lms_completed_at:
+                target.lms_completed_at = timezone.now()
+                target.quiz_score       = quiz_attempt.score
+                target.save(update_fields=['lms_completed_at', 'quiz_score'])
+
         return Response({
-            'target_id':          target.id,
-            'target_name':        target.full_name or target.email.split('@')[0],
-            'campaign_name':      target.campaign.name,
+            'target_id':     target.id,
+            'target_name':   target_name,
+            'campaign_name': target.campaign.name,
             'course': CoursePublicSerializer(course, context={'request': request}).data,
+            'lessons':       lessons_data,
             'progress': {
                 'completed_lessons': completed_lessons,
                 'total_lessons':     total_lessons,
-                'all_complete':      completed_lessons >= total_lessons and total_lessons > 0,
+                'all_complete':      all_lessons_done,
                 'lms_completed':     target.lms_completed_at is not None,
             },
             'quiz_attempt': {
@@ -946,8 +1039,8 @@ class PlatformSettingsView(APIView):
 
 class SMTPTestView(APIView):
     """
-    POST /api/v1/settings/smtp-test/
-    Send a test email to verify SMTP credentials before using them in a campaign.
+    GET  /api/v1/settings/smtp-test/  — prefill form with last campaign's SMTP config
+    POST /api/v1/settings/smtp-test/  — send a test email
     """
     permission_classes = [IsAdminRole]
 
