@@ -193,7 +193,9 @@ function CampaignModal({
                     </h2>
 
                     {error && (
-                        <p className="text-[#DC3545] text-sm m-0">{error}</p>
+                        <div className="bg-rose-100 border border-rose-400 text-rose-700 px-2 py-1 my-2 rounded relative">
+                            <span className="block sm:inline">{error}</span>
+                        </div>
                     )}
 
                     <TextInput
@@ -206,7 +208,7 @@ function CampaignModal({
                     />
 
                     <TextField
-                        label="Description"
+                        label="Description (optional)"
                         placeholder="Campaign Description"
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}

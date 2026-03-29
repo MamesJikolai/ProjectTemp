@@ -50,6 +50,24 @@ function Campaigns() {
         setIsModalOpen(true)
     }, [])
 
+    const handleLaunchCampaign = async (campaignData: Campaign) => {
+        try {
+            await apiService.launchCampaign(campaignData.id)
+            alert('Campaign launched successfully!')
+        } catch (err: any) {
+            alert(err.response?.data?.error || 'Failed to launch.')
+        }
+    }
+
+    const handlePauseCampaign = async (campaignData: Campaign) => {
+        try {
+            await apiService.pauseCampaign(campaignData.id)
+            alert('Campaign paused successfully!')
+        } catch (err: any) {
+            alert(err.response?.data?.error || 'Failed to pause.')
+        }
+    }
+
     const handleDeleteCampaign = useCallback(async (campaignData: Campaign) => {
         const confirmDelete = window.confirm(
             `Are you sure you want to delete "${campaignData.name}"?`
@@ -130,6 +148,19 @@ function Campaigns() {
         }
     }
 
+    const getCampaignButtonConfig = (status: string) => {
+        switch (status.toLowerCase()) {
+            case 'running':
+                return { text: 'Pause', disabled: false }
+            case 'completed':
+                return { text: 'Completed', disabled: true }
+            case 'draft':
+            case 'paused':
+            default:
+                return { text: 'Launch', disabled: false }
+        }
+    }
+
     const columns = useMemo<ColumnDef<Campaign, any>[]>(
         () => [
             { accessorKey: 'name', header: 'Name' },
@@ -205,28 +236,26 @@ function Campaigns() {
                     return (
                         <div className="flex flex-row gap-2 text-[12px]">
                             <button
-                                onClick={async () => {
-                                    try {
-                                        await apiService.launchCampaign(
-                                            campaignData.id
-                                        )
-                                        alert('Campaign launched successfully!')
-                                    } catch (err: any) {
-                                        alert(
-                                            err.response?.data?.error ||
-                                                'Failed to launch.'
-                                        )
-                                    }
-                                }}
+                                onClick={
+                                    campaignData.status.toLowerCase() ===
+                                    'running'
+                                        ? () =>
+                                              handlePauseCampaign(campaignData)
+                                        : () =>
+                                              handleLaunchCampaign(campaignData)
+                                }
                                 disabled={
-                                    campaignData.status.toLowerCase() !==
-                                    'draft'
-                                } // Only allow drafting
+                                    getCampaignButtonConfig(
+                                        campaignData.status.toLowerCase()
+                                    ).disabled
+                                }
                                 className="text-[#F8F9FA] hover:bg-[#45C664] bg-[#28A745] px-2 rounded-md py-1 font-bold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                {campaignData.status.toLowerCase() === 'running'
-                                    ? 'Running'
-                                    : '▶︎ Launch'}
+                                {
+                                    getCampaignButtonConfig(
+                                        campaignData.status.toLowerCase()
+                                    ).text
+                                }
                             </button>
                             <button
                                 onClick={() => openEditModal(campaignData)}
