@@ -668,26 +668,69 @@ class LMSSessionView(APIView):
 
 class LMSCompleteLessonView(APIView):
     """
+    GET  /api/v1/lms/lessons/<lesson_id>/complete/?token=<uuid>
+         Returns whether this lesson is already completed for this employee.
+         Used on page load to restore state without re-watching.
+
     POST /api/v1/lms/lessons/<lesson_id>/complete/
-    Body: { "token": "<uuid>" }
-    Marks a lesson as completed.
+         Body: { "token": "<uuid>" }
+         Marks a lesson as completed (idempotent — safe to call multiple times).
     """
     permission_classes = [AllowAny]
 
-    def post(self, request, lesson_id):
-        token = request.data.get('token')
+    def _get_target_and_lesson(self, token, lesson_id):
+        """Shared lookup used by both GET and POST."""
         if not token:
-            return Response({'error': 'Token is required.'}, status=400)
-
+            return None, None, Response({'error': 'Token is required.'}, status=400)
         try:
             target = CampaignTarget.objects.get(token=token)
         except CampaignTarget.DoesNotExist:
-            return Response({'error': 'Invalid token.'}, status=404)
-
+            return None, None, Response({'error': 'Invalid token.'}, status=404)
         try:
-            lesson = Lesson.objects.get(id=lesson_id)
+            lesson = Lesson.objects.select_related('course').get(id=lesson_id)
         except Lesson.DoesNotExist:
-            return Response({'error': 'Lesson not found.'}, status=404)
+            return None, None, Response({'error': 'Lesson not found.'}, status=404)
+        return target, lesson, None
+
+    def get(self, request, lesson_id):
+        """
+        Check completion status for a single lesson.
+        Frontend calls this on mount to know if the lesson is already done
+        so it can skip requiring the user to re-watch.
+        """
+        token = request.query_params.get('token')
+        target, lesson, err = self._get_target_and_lesson(token, lesson_id)
+        if err:
+            return err
+
+        progress = LessonProgress.objects.filter(
+            target=target, lesson=lesson
+        ).first()
+
+        course    = lesson.course
+        total     = course.lessons.count()
+        completed = LessonProgress.objects.filter(
+            target=target, lesson__course=course, completed_at__isnull=False
+        ).count()
+
+        return Response({
+            'lesson_id':          lesson.id,
+            'completed':          progress.is_completed if progress else False,
+            'completed_at':       progress.completed_at if progress else None,
+            'all_lessons_done':   total > 0 and completed >= total,
+            'completed_lessons':  completed,
+            'total_lessons':      total,
+        })
+
+    def post(self, request, lesson_id):
+        """
+        Mark a lesson as completed. Idempotent — calling again on an already
+        completed lesson returns the same response without duplicating records.
+        """
+        token = request.data.get('token')
+        target, lesson, err = self._get_target_and_lesson(token, lesson_id)
+        if err:
+            return err
 
         progress, _ = LessonProgress.objects.get_or_create(
             target=target, lesson=lesson
@@ -696,13 +739,12 @@ class LMSCompleteLessonView(APIView):
             progress.completed_at = timezone.now()
             progress.save(update_fields=['completed_at'])
 
-        # Check if all lessons in the course are now done
-        course        = lesson.course
-        total         = course.lessons.count()
-        completed     = LessonProgress.objects.filter(
+        course    = lesson.course
+        total     = course.lessons.count()
+        completed = LessonProgress.objects.filter(
             target=target, lesson__course=course, completed_at__isnull=False
         ).count()
-        all_done      = total > 0 and completed >= total
+        all_done  = total > 0 and completed >= total
 
         return Response({
             'completed':          True,
@@ -714,14 +756,84 @@ class LMSCompleteLessonView(APIView):
 
 class LMSSubmitQuizView(APIView):
     """
+    GET  /api/v1/lms/quiz/<quiz_id>/submit/?token=<uuid>
+         Returns the most recent quiz attempt for this employee.
+         Used on page load to restore score, pass/fail, and per-question results
+         so the user sees their previous result when they return.
+
     POST /api/v1/lms/quiz/<quiz_id>/submit/
-    Body: {
-        "token": "<uuid>",
-        "answers": { "<question_id>": [<choice_id>, ...], ... }
-    }
-    Scores the quiz and saves the attempt.
+         Body: { "token": "<uuid>", "answers": { "<question_id>": [<choice_id>] } }
+         Scores and saves a new quiz attempt.
     """
     permission_classes = [AllowAny]
+
+    def get(self, request, quiz_id):
+        """
+        Retrieve the most recent quiz attempt for this employee.
+        Returns null quiz_attempt if they haven't attempted yet.
+        """
+        token = request.query_params.get('token')
+        if not token:
+            return Response({'error': 'Token is required.'}, status=400)
+
+        try:
+            target = CampaignTarget.objects.get(token=token)
+        except CampaignTarget.DoesNotExist:
+            return Response({'error': 'Invalid token.'}, status=404)
+
+        try:
+            quiz = Quiz.objects.prefetch_related('questions__choices').get(id=quiz_id)
+        except Quiz.DoesNotExist:
+            return Response({'error': 'Quiz not found.'}, status=404)
+
+        attempt = QuizAttempt.objects.filter(
+            target=target, quiz=quiz
+        ).order_by('-submitted_at').first()
+
+        if not attempt:
+            return Response({
+                'quiz_id':       quiz.id,
+                'quiz_title':    quiz.title,
+                'passing_score': quiz.passing_score,
+                'quiz_attempt':  None,
+            })
+
+        # Re-build per-question results from the stored answers
+        saved_answers = attempt.answers or {}
+        results = []
+        for question in quiz.questions.prefetch_related('choices').all():
+            submitted_ids = [
+                int(x) for x in saved_answers.get(str(question.id), [])
+                if str(x).isdigit()
+            ]
+            correct_ids = list(
+                question.choices.filter(is_correct=True).values_list('id', flat=True)
+            )
+            results.append({
+                'question_id':   question.id,
+                'question_text': question.text,
+                'explanation':   question.explanation,
+                'submitted':     submitted_ids,
+                'correct':       correct_ids,
+                'is_correct':    set(submitted_ids) == set(correct_ids),
+                'choices': [
+                    {'id': c.id, 'text': c.text, 'is_correct': c.is_correct}
+                    for c in question.choices.all()
+                ],
+            })
+
+        return Response({
+            'quiz_id':       quiz.id,
+            'quiz_title':    quiz.title,
+            'passing_score': quiz.passing_score,
+            'quiz_attempt': {
+                'attempt_id':   attempt.id,
+                'score':        attempt.score,
+                'passed':       attempt.passed,
+                'submitted_at': attempt.submitted_at,
+                'results':      results,
+            },
+        })
 
     def post(self, request, quiz_id):
         token = request.data.get('token')
