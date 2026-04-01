@@ -3,6 +3,7 @@ import type { Lesson } from '../../types/models'
 import { getEmbedUrl } from '../../utils/getEmbedUrl'
 import { useState, useEffect, useRef } from 'react'
 import LessonVideoPlayer from './LessonVideoPlayer'
+import DOMPurify from 'dompurify'
 
 interface PublicLessonCardProps {
     item: Lesson
@@ -74,6 +75,18 @@ function PublicLessonCard({
         onLessonCompleted,
     ])
 
+    const formatHtmlContent = (rawHtml: string | null | undefined) => {
+        if (!rawHtml) return ''
+
+        const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g
+        const parsedHtml = rawHtml.replace(linkRegex, (match, text, url) => {
+            return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline font-medium">${text}</a>`
+        })
+
+        // Scrub the HTML clean of any malicious scripts before returning it
+        return DOMPurify.sanitize(parsedHtml)
+    }
+
     return (
         <div className="bg-[#F8F9FA] rounded-xl px-8 py-6 w-full shadow-sm border border-gray-100">
             {/* Lesson Header */}
@@ -115,9 +128,14 @@ function PublicLessonCard({
                     )}
 
                     {/* Additional Lesson Content */}
-                    <p className="text-gray-700 whitespace-pre-wrap">
-                        {item.content_html}
-                    </p>
+                    {hasContent && (
+                        <div
+                            className="flex flex-col gap-3"
+                            dangerouslySetInnerHTML={{
+                                __html: formatHtmlContent(item.content_html),
+                            }}
+                        />
+                    )}
 
                     {hasContent && (
                         <div ref={contentEndRef} className="h-1 w-full" />
