@@ -31,6 +31,8 @@ function LogIn() {
 
             // Send them to the dashboard
             navigate('/dashboard')
+
+            localStorage.removeItem('lms_token') // Clear any existing LMS token on login
         } catch (err: any) {
             console.error('Failed to log in:', err)
 
