@@ -1,0 +1,82 @@
+import {
+    BarChart,
+    Bar,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    ResponsiveContainer,
+} from 'recharts'
+import type { AnalyticsResponse } from '../../../types/models'
+
+interface TopDepartmentsRiskChartProps {
+    data: AnalyticsResponse
+}
+
+function TopDepartmentsRiskChart({ data }: TopDepartmentsRiskChartProps) {
+    const departmentRiskData = data?.department_stats
+        .map((dept) => {
+            const rate =
+                dept.total > 0
+                    ? Number(((dept.clicked / dept.total) * 100).toFixed(1))
+                    : 0
+
+            let barColor = '#28A745'
+            if (rate > 20 && rate <= 50) barColor = '#FFC107'
+            if (rate > 50) barColor = '#DC3545'
+
+            return {
+                name: dept.department,
+                clickRate: rate,
+                fill: barColor,
+            }
+        })
+        .sort((a, b) => b.clickRate - a.clickRate)
+        .slice(0, 10)
+
+    return (
+        <div className="w-full bg-[#F8F9FA] p-6 rounded-lg drop-shadow-md border border-gray-100">
+            <h3 className="mb-4">Top 10 Departments By Risk</h3>
+
+            <div className="h-120 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                        data={departmentRiskData}
+                        layout="vertical"
+                        margin={{
+                            top: 20,
+                            right: 30,
+                            left: 40,
+                            bottom: 5,
+                        }}
+                    >
+                        <CartesianGrid
+                            strokeDasharray="3 3"
+                            horizontal={true}
+                            vertical={false}
+                        />
+                        <XAxis
+                            type="number"
+                            tickFormatter={(value) => `${value}%`}
+                        />
+                        <YAxis
+                            dataKey="name"
+                            type="category"
+                            width={100}
+                            tick={{ fontSize: 14 }}
+                        />
+                        <Tooltip formatter={(value) => `${value}%`} />
+                        <Bar
+                            dataKey="clickRate"
+                            name="Click Rate (%)"
+                            radius={[0, 4, 4, 0]}
+                            isAnimationActive
+                        />
+                    </BarChart>
+                </ResponsiveContainer>
+            </div>
+        </div>
+    )
+}
+
+export default TopDepartmentsRiskChart

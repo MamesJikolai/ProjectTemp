@@ -1,18 +1,13 @@
 import { useEffect, useState } from 'react'
-import {
-    BarChart,
-    Bar,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    Legend,
-    ResponsiveContainer,
-} from 'recharts'
 import AnalyticsCards from '../../components/Analytics/AnalyticsCards.tsx'
 import Message from '../../components/Message.tsx'
 import type { AnalyticsResponse } from '../../types/models.ts'
 import { apiService } from '../../services/userService.ts'
+import CampaignStatusChart from '../../components/Analytics/Charts/CampaignStatusChart.tsx'
+import SimulationStatsChart from '../../components/Analytics/Charts/SimulationStatsChart.tsx'
+import LatestCampaignsClickRateChart from '../../components/Analytics/Charts/LatestCampaignsClickRateChart.tsx'
+import TopDepartmentsEngagementChart from '../../components/Analytics/Charts/TopDepartmentsEngagementChart.tsx'
+import TopDepartmentsRiskChart from '../../components/Analytics/Charts/TopDepartmentsRiskChart.tsx'
 
 function Analytics() {
     const [data, setData] = useState<AnalyticsResponse | null>(null)
@@ -56,7 +51,7 @@ function Analytics() {
             <Message text="Analytics & Reports" />
 
             {data && (
-                <div className="flex flex-col gap-8 w-full max-w-6xl">
+                <div className="flex flex-col gap-8 w-full">
                     {/* Summary Metrics */}
                     <div className="flex flex-row flex-wrap gap-4">
                         {summaryMetrics.map((metric, index) => (
@@ -68,44 +63,21 @@ function Analytics() {
                         ))}
                     </div>
 
-                    {/* Department Stats Chart */}
-                    <div className="w-full bg-[#F8F9FA] p-6 rounded-lg drop-shadow-md border border-gray-100">
-                        <h3 className="mb-4">Department Engagement</h3>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full">
+                        {/* Campaign Status Distribution */}
+                        <CampaignStatusChart data={data} />
 
-                        <div className="h-96 w-full">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart
-                                    data={data.department_stats}
-                                    margin={{
-                                        top: 20,
-                                        right: 30,
-                                        left: 20,
-                                        bottom: 5,
-                                    }}
-                                >
-                                    <CartesianGrid
-                                        strokeDasharray="3 3"
-                                        vertical={false}
-                                    />
-                                    <XAxis dataKey="department" />
-                                    <YAxis />
-                                    <Tooltip />
-                                    <Legend />
-                                    <Bar
-                                        dataKey="clicked"
-                                        name="Total Clicked"
-                                        fill="#17A2B8"
-                                        radius={[4, 4, 0, 0]}
-                                    />
-                                    <Bar
-                                        dataKey="completed"
-                                        name="Total Completed"
-                                        fill="#28A745"
-                                        radius={[4, 4, 0, 0]}
-                                    />
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </div>
+                        {/* Simulation Stats Chart */}
+                        <SimulationStatsChart data={data} />
+
+                        {/* Campaign Click Rate Chart */}
+                        <LatestCampaignsClickRateChart data={data} />
+
+                        {/* Department Stats Chart */}
+                        <TopDepartmentsEngagementChart data={data} />
+
+                        {/* Department Risk Data */}
+                        <TopDepartmentsRiskChart data={data} />
                     </div>
                 </div>
             )}
