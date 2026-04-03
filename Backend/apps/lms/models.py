@@ -61,6 +61,15 @@ class Quiz(models.Model):
     title         = models.CharField(max_length=255, default='Knowledge Check')
     passing_score = models.FloatField(default=70.0)
     instructions  = models.TextField(blank=True)
+    max_attempts  = models.PositiveIntegerField(
+        default=0,
+        help_text=(
+            '0 = unlimited attempts. '
+            'Set to 1 to allow only one attempt, 2 for two, etc. '
+            'The platform-level "Allow Quiz Retake" setting is also '
+            'checked — if retakes are disabled there, this field is ignored.'
+        ),
+    )
 
     class Meta:
         verbose_name_plural = 'Quizzes'

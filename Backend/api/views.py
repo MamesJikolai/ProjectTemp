@@ -890,11 +890,28 @@ class LMSSubmitQuizView(APIView):
             target=target, quiz=quiz
         ).order_by('-submitted_at').first()
 
+        attempts_count = QuizAttempt.objects.filter(
+            target=target, quiz=quiz
+        ).count()
+
+        # Check retake eligibility
+        settings_obj = PlatformSettings.get()
+        allow_retake = settings_obj.allow_quiz_retake
+        max_attempts = quiz.max_attempts  # 0 = unlimited
+
+        can_retake = (
+            allow_retake and
+            (max_attempts == 0 or attempts_count < max_attempts)
+        )
+
         if not attempt:
             return Response({
                 'quiz_id':       quiz.id,
                 'quiz_title':    quiz.title,
                 'passing_score': quiz.passing_score,
+                'max_attempts':  max_attempts,
+                'attempts_used': attempts_count,
+                'can_retake':    can_retake,
                 'quiz_attempt':  None,
             })
 
@@ -926,6 +943,9 @@ class LMSSubmitQuizView(APIView):
             'quiz_id':       quiz.id,
             'quiz_title':    quiz.title,
             'passing_score': quiz.passing_score,
+            'max_attempts':  max_attempts,
+            'attempts_used': attempts_count,
+            'can_retake':    can_retake,
             'quiz_attempt': {
                 'attempt_id':   attempt.id,
                 'score':        attempt.score,
@@ -949,6 +969,43 @@ class LMSSubmitQuizView(APIView):
             quiz = Quiz.objects.prefetch_related('questions__choices').get(id=quiz_id)
         except Quiz.DoesNotExist:
             return Response({'error': 'Quiz not found.'}, status=404)
+
+        # ── Check retake eligibility before accepting submission ─────────
+        from apps.settings_app.models import PlatformSettings
+        settings_obj  = PlatformSettings.get()
+        allow_retake  = settings_obj.allow_quiz_retake
+        max_attempts  = quiz.max_attempts  # 0 = unlimited
+        attempts_used = QuizAttempt.objects.filter(
+            target=target, quiz=quiz
+        ).count()
+
+        # Block if already passed (regardless of retake setting)
+        already_passed = QuizAttempt.objects.filter(
+            target=target, quiz=quiz, passed=True
+        ).exists()
+        if already_passed:
+            return Response({
+                'error':        'You have already passed this quiz.',
+                'attempts_used': attempts_used,
+                'can_retake':   False,
+            }, status=400)
+
+        # Block if retakes are globally disabled and they've already attempted
+        if not allow_retake and attempts_used > 0:
+            return Response({
+                'error':        'Quiz retakes are not allowed.',
+                'attempts_used': attempts_used,
+                'can_retake':   False,
+            }, status=400)
+
+        # Block if max_attempts reached (0 = unlimited)
+        if max_attempts > 0 and attempts_used >= max_attempts:
+            return Response({
+                'error':        f'Maximum attempts ({max_attempts}) reached.',
+                'attempts_used': attempts_used,
+                'max_attempts':  max_attempts,
+                'can_retake':   False,
+            }, status=400)
 
         answers  = request.data.get('answers', {})
         questions = quiz.questions.prefetch_related('choices').all()
@@ -1006,12 +1063,22 @@ class LMSSubmitQuizView(APIView):
                 ],
             })
 
+        new_attempts_used = attempts_used + 1
+        can_retake_after  = (
+            not passed and
+            allow_retake and
+            (max_attempts == 0 or new_attempts_used < max_attempts)
+        )
+
         return Response({
-            'attempt_id': attempt.id,
-            'score':      score,
-            'passed':     passed,
+            'attempt_id':    attempt.id,
+            'score':         score,
+            'passed':        passed,
             'passing_score': quiz.passing_score,
-            'results':    results,
+            'attempts_used': new_attempts_used,
+            'max_attempts':  max_attempts,
+            'can_retake':    can_retake_after,
+            'results':       results,
         })
 
 

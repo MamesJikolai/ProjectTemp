@@ -73,7 +73,8 @@ class QuizWriteSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model  = Quiz
-        fields = ['id', 'course', 'title', 'passing_score', 'instructions']
+        fields = ['id', 'course', 'title', 'passing_score',
+                  'max_attempts', 'instructions']
         extra_kwargs = {'course': {'required': False}}
 
 
@@ -102,24 +103,24 @@ class QuizQuestionPublicSerializer(serializers.ModelSerializer):
 
 
 class QuizSerializer(serializers.ModelSerializer):
-    questions      = QuizQuestionSerializer(many=True, read_only=True)
+    questions       = QuizQuestionSerializer(many=True, read_only=True)
     total_questions = serializers.IntegerField(read_only=True)
 
     class Meta:
         model  = Quiz
-        fields = ['id', 'title', 'passing_score', 'instructions',
-                  'total_questions', 'questions']
+        fields = ['id', 'title', 'passing_score', 'max_attempts',
+                  'instructions', 'total_questions', 'questions']
 
 
 class QuizPublicSerializer(serializers.ModelSerializer):
     """Used for employees — hides correct answers."""
-    questions      = QuizQuestionPublicSerializer(many=True, read_only=True)
+    questions       = QuizQuestionPublicSerializer(many=True, read_only=True)
     total_questions = serializers.IntegerField(read_only=True)
 
     class Meta:
         model  = Quiz
-        fields = ['id', 'title', 'passing_score', 'instructions',
-                  'total_questions', 'questions']
+        fields = ['id', 'title', 'passing_score', 'max_attempts',
+                  'instructions', 'total_questions', 'questions']
 
 
 class LessonSerializer(serializers.ModelSerializer):

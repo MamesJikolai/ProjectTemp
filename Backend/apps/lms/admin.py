@@ -111,7 +111,7 @@ class QuizAdmin(nested_admin.NestedModelAdmin):
 
     fieldsets = (
         (None, {
-            'fields': ('course', 'title', 'passing_score', 'instructions'),
+            'fields': ('course', 'title', 'passing_score', 'max_attempts', 'instructions'),
             'description': (
                 '<strong>Adding questions:</strong> Click "Add another Quiz Question" '
                 'below to add a new question. Each question shows its own "Choices" '
