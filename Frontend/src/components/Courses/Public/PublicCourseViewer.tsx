@@ -58,16 +58,22 @@ function PublicCourseViewer({ role }: { role: string }) {
                 console.log(`Lesson ${lessonId} progress saved!`, response)
 
                 if (response.all_lessons_done) {
-                    alert(
-                        'Congratulations! You have completed all lessons for this course. You can now take the short quiz to test your knowledge!'
-                    )
-                    setShowQuiz(true)
+                    if (course?.quiz) {
+                        alert(
+                            'Congratulations! You have completed all lessons for this course. You can now take the short quiz to test your knowledge!'
+                        )
+                        setShowQuiz(true)
+                    } else {
+                        alert(
+                            'Congratulations! You have completed all lessons for this course.'
+                        )
+                    }
                 }
             } catch (err) {
                 console.error('Failed to save lesson progress:', err)
             }
         },
-        [courseId, role]
+        [courseId, role, course, setShowQuiz]
     )
 
     useEffect(() => {
