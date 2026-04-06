@@ -47,7 +47,7 @@ input[type='file']::file-selector-button {
     border: none;
     background: #024c89;
     padding: 8px 16px;
-    border-radius: 10px;
+    border-radius: 8px;
     color: #f8f9fa;
     cursor: pointer;
 }

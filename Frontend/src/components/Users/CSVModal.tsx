@@ -95,13 +95,13 @@ function CsvUploadModal({
                     type="file"
                     accept=".csv"
                     onChange={(e) => setFile(e.target.files?.[0] || null)}
-                    className="w-full"
+                    className="w-full border-none! px-0! rounded-none!"
                 />
 
                 <DefaultButton
                     type="submit"
                     disabled={isUploading}
-                    className="bg-[#024C89] text-white mt-4"
+                    className="bg-[#024C89] hover:bg-[#3572A1] text-white mt-4"
                 >
                     {isUploading ? 'Uploading...' : 'Upload Targets'}
                 </DefaultButton>
