@@ -47,17 +47,20 @@ function LatestCampaignsClickRateChart({
                             horizontal={true}
                             vertical={false}
                         />
-                        <XAxis type="number" />
+                        <XAxis
+                            type="number"
+                            tickFormatter={(value) => `${value}%`}
+                        />
                         <YAxis
                             dataKey="name"
                             type="category"
                             width={100}
                             tick={{ fontSize: 14 }}
                         />
-                        <Tooltip />
+                        <Tooltip formatter={(value) => `${value}%`} />
                         <Bar
                             dataKey="click_rate"
-                            name="Click Rate"
+                            name="Click Rate (%)"
                             fill="#17A2B8"
                             radius={[0, 4, 4, 0]}
                             isAnimationActive
