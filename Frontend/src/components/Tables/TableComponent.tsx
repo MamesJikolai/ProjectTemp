@@ -69,7 +69,7 @@ export default function TableComponent<TData>({
     })
 
     return (
-        <div className="text-[14px] w-full">
+        <div className={`text-[14px] ${isPaginated ? 'w-full' : 'flex-1'}`}>
             <h2>{title}</h2>
 
             {isPaginated && (
