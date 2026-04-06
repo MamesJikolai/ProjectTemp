@@ -105,7 +105,7 @@ function AdminSidebar({ onCloseMobile }: AdminSidebarProps) {
                 {/* logo */}
                 <Link to="/dashboard" onClick={onCloseMobile}>
                     <img
-                        src="../../../public/PhishingOps.png"
+                        src="/PhishingOps.png"
                         width="auto"
                         height="120px"
                         className="m-2 items-center justify-center"
