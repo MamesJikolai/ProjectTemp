@@ -24,7 +24,7 @@ function TextInput({
 
     return (
         <label
-            className={`flex ${props.type === 'file' && props.accept !== '.csv' ? 'flex-row items-center gap-2 pt-4' : 'flex-col'} ${isChoose ? 'w-fit' : 'w-full'}`}
+            className={`flex ${props.type === 'file' && props.accept !== '.csv' && label === 'Thumbnail' ? 'flex-row items-center gap-2' : 'flex-col'} ${isChoose ? 'w-fit' : 'w-full'}`}
         >
             {!isChoose && label && (
                 <span className="text-[#121212] font-medium">{label}</span>
@@ -34,7 +34,7 @@ function TextInput({
                 <input
                     ref={inputRef}
                     onWheel={handleWheel}
-                    className={`text-[#4A4A4A] bg-#F8F9FA border-2 border-[#DDE2E5] focus:outline-[#024C89] rounded-4xl px-4 max-w-2xl py-1 ${className}`}
+                    className={`text-[#4A4A4A] bg-#F8F9FA ${props.type === 'file' ? '' : 'border-2 border-[#DDE2E5] rounded-4xl px-4 py-1'} focus:outline-[#024C89] max-w-2xl ${className}`}
                     {...props}
                 />
                 {isChoose && label && (
