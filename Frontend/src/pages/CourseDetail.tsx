@@ -11,7 +11,7 @@ function CourseDetail() {
 
     const role = user?.role?.toLowerCase() || 'public'
 
-    if (role === 'admin' || role === 'hr') {
+    if (role === 'admin') {
         return <AdminCourseViewer role={role} />
     }
 

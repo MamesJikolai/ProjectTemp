@@ -104,7 +104,11 @@ function PublicCourseViewer({ role }: { role: string }) {
     return (
         <div className="flex flex-col items-start gap-4 p-4 md:p-8 w-full">
             <DefaultButton
-                onClick={() => navigate('/home')}
+                onClick={
+                    role === 'hr'
+                        ? () => navigate('/courses')
+                        : () => navigate('/home')
+                }
                 className="bg-[#024C89] hover:bg-[#3572A1] text-[#F8F9FA] self-start"
             >
                 Go Back
