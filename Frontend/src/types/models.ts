@@ -156,7 +156,7 @@ export interface AuthUser {
     last_name: string
     is_staff: boolean
     is_superuser: boolean
-    role?: string
+    role: string
     date_joined: string
 }
 

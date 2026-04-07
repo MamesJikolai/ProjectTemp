@@ -188,7 +188,6 @@ function PublicCourseViewer({ role }: { role: string }) {
                     isOpen={isModalOpen}
                     onClose={() => setIsModalOpen(false)}
                     initialData={selectedQuiz}
-                    courseId={courseId}
                 />
             )}
         </div>

@@ -88,7 +88,7 @@ function PublicLessonCard({
         if (!rawHtml) return ''
 
         const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g
-        const parsedHtml = rawHtml.replace(linkRegex, (match, text, url) => {
+        const parsedHtml = rawHtml.replace(linkRegex, (text, url) => {
             return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline font-medium">${text}</a>`
         })
 

@@ -1,7 +1,7 @@
 import DefaultButton from '../DefaultButton.tsx'
 import TextInput from '../TextInput.tsx'
 import type { EmailTemplate } from '../../types/models.ts'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import TextField from '../TextField.tsx'
 import { useAuth } from '../../context/AuthContext.tsx'
 

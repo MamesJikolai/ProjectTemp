@@ -8,16 +8,12 @@ interface PublicQuizModalProps {
     isOpen: boolean
     onClose: () => void
     initialData?: QuizPublic | null
-    courseId?: string
-    onSaveComplete?: () => void
 }
 
 function PublicQuizModal({
     isOpen,
     onClose,
     initialData,
-    courseId,
-    onSaveComplete,
 }: PublicQuizModalProps) {
     const [answers, setAnswers] = useState<Record<number, number[]>>({})
     const [isSubmitting, setIsSubmitting] = useState(false)

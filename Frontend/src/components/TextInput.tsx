@@ -14,7 +14,7 @@ function TextInput({
     const isChoose = props.type === 'checkbox' || props.type === 'radio'
     const inputRef = useRef<HTMLInputElement>(null)
 
-    const handleWheel = (e: React.WheelEvent<HTMLInputElement>) => {
+    const handleWheel = () => {
         if (props.type === 'number') {
             if (inputRef.current) {
                 inputRef.current.blur()

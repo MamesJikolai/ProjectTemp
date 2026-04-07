@@ -9,10 +9,9 @@ interface NavLinkItem {
 
 interface MenuItemProps {
     items: NavLinkItem[]
-    onCloseMobile?: () => void
 }
 
-function MenuItem({ items, onCloseMobile }: MenuItemProps) {
+function MenuItem({ items }: MenuItemProps) {
     return (
         <div className="flex flex-col">
             {items.map(({ title, link, href, hrefActive }, index) => (
