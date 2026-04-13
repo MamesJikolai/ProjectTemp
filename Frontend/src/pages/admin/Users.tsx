@@ -92,27 +92,66 @@ function Users() {
                 meta: { filterVariant: 'select' },
             },
             {
-                accessorKey: 'email_sent_at',
+                id: 'email_sent_at',
                 header: 'Email Sent',
                 enableColumnFilter: false,
-                cell: (info) => formatDate(info.getValue() as string),
+                accessorFn: (row) =>
+                    row.email_sent_at ? formatDate(row.email_sent_at) : '-',
+                sortingFn: (rowA, rowB) => {
+                    const a = new Date(
+                        rowA.original.email_sent_at || 0
+                    ).getTime()
+                    const b = new Date(
+                        rowB.original.email_sent_at || 0
+                    ).getTime()
+                    return a - b
+                },
             },
             {
-                accessorKey: 'link_clicked_at',
+                id: 'link_clicked_at',
                 header: 'Email Clicked',
                 enableColumnFilter: false,
-                cell: (info) => formatDate(info.getValue() as string),
+                accessorFn: (row) =>
+                    row.link_clicked_at ? formatDate(row.link_clicked_at) : '-',
+                sortingFn: (rowA, rowB) => {
+                    const a = new Date(
+                        rowA.original.link_clicked_at || 0
+                    ).getTime()
+                    const b = new Date(
+                        rowB.original.link_clicked_at || 0
+                    ).getTime()
+                    return a - b
+                },
             },
             {
-                accessorKey: 'lms_completed_at',
+                id: 'lms_completed_at',
                 header: 'LMS Completed',
                 enableColumnFilter: false,
-                cell: (info) => formatDate(info.getValue() as string),
+                accessorFn: (row) =>
+                    row.lms_completed_at
+                        ? formatDate(row.lms_completed_at)
+                        : '-',
+                sortingFn: (rowA, rowB) => {
+                    const a = new Date(
+                        rowA.original.lms_completed_at || 0
+                    ).getTime()
+                    const b = new Date(
+                        rowB.original.lms_completed_at || 0
+                    ).getTime()
+                    return a - b
+                },
             },
             {
-                accessorKey: 'quiz_score',
+                id: 'quiz_score',
                 header: 'Score',
                 enableColumnFilter: false,
+                accessorFn: (row) =>
+                    row.quiz_score !== null ? String(row.quiz_score) : '-',
+                sortingFn: (rowA, rowB) => {
+                    const a = rowA.original.quiz_score ?? -1
+                    const b = rowB.original.quiz_score ?? -1
+                    return a - b
+                },
             },
             {
                 accessorKey: 'actions',

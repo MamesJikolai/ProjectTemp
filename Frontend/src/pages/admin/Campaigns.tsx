@@ -200,16 +200,32 @@ function Campaigns() {
                     ),
             },
             {
-                accessorKey: 'scheduled_at',
+                id: 'scheduled_at',
                 header: 'Scheduled',
                 enableColumnFilter: false,
-                cell: (info) => formatDate(info.getValue() as string),
+                accessorFn: (row) =>
+                    row.scheduled_at ? formatDate(row.scheduled_at) : '-',
+                sortingFn: (rowA, rowB) => {
+                    const a = new Date(
+                        rowA.original.scheduled_at || 0
+                    ).getTime()
+                    const b = new Date(
+                        rowB.original.scheduled_at || 0
+                    ).getTime()
+                    return a - b
+                },
             },
             {
-                accessorKey: 'created_at',
+                id: 'created_at',
                 header: 'Created',
                 enableColumnFilter: false,
-                cell: (info) => formatDate(info.getValue() as string),
+                accessorFn: (row) =>
+                    row.created_at ? formatDate(row.created_at) : '-',
+                sortingFn: (rowA, rowB) => {
+                    const a = new Date(rowA.original.created_at || 0).getTime()
+                    const b = new Date(rowB.original.created_at || 0).getTime()
+                    return a - b
+                },
             },
             {
                 accessorKey: 'click_rate',
