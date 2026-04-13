@@ -64,9 +64,16 @@ function AdminUsers() {
             meta: { filterVariant: 'select' },
         },
         {
-            accessorKey: 'date_joined',
+            id: 'date_joined',
             header: 'Created',
-            cell: (info) => formatDate(info.getValue() as string),
+            enableColumnFilter: false,
+            accessorFn: (row) =>
+                row.date_joined ? formatDate(row.date_joined) : '-',
+            sortingFn: (rowA, rowB) => {
+                const a = new Date(rowA.original.date_joined || 0).getTime()
+                const b = new Date(rowB.original.date_joined || 0).getTime()
+                return a - b
+            },
         },
     ]
 
