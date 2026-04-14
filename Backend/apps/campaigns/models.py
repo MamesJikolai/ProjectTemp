@@ -172,6 +172,9 @@ class CampaignTarget(models.Model):
     full_name  = models.CharField(max_length=255, blank=True)
     department = models.CharField(max_length=255, blank=True)
     position   = models.CharField(max_length=255, blank=True)
+    business_unit = models.CharField(max_length=255, blank=True)
+    manager = models.CharField(max_length=255, blank=True)
+    manager_email = models.EmailField(blank=True)
 
     # Unique token embedded in the phishing link
     token      = models.UUIDField(default=uuid.uuid4, unique=True, db_index=True, editable=False)

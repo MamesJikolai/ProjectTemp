@@ -8,9 +8,9 @@ class CampaignsConfig(AppConfig):
 
     def ready(self):
         """
-        Called once when Django starts.
-        Creates the Django-Q2 schedule for auto-launching campaigns
-        if it doesn't already exist in the database.
+        Register Django-Q2 scheduled tasks on startup.
+        - check_scheduled_campaigns: every minute — auto-launch scheduled campaigns
+        - check_reminder_emails: every hour — send reminders to overdue employees
         """
         try:
             from django_q.models import Schedule
@@ -21,10 +21,18 @@ class CampaignsConfig(AppConfig):
                     'name':          'Check Scheduled Campaigns',
                     'schedule_type': Schedule.MINUTES,
                     'minutes':       1,
-                    'repeats':       -1,   # run indefinitely
+                    'repeats':       -1,
+                }
+            )
+
+            Schedule.objects.get_or_create(
+                func='apps.campaigns.tasks.check_reminder_emails',
+                defaults={
+                    'name':          'Send Reminder Emails',
+                    'schedule_type': Schedule.HOURS,
+                    'hours':         1,
+                    'repeats':       -1,
                 }
             )
         except Exception:
-            # Silently ignore during first migration or if django_q tables
-            # don't exist yet — the schedule will be created on next start
             pass

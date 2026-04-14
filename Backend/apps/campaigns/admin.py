@@ -83,9 +83,12 @@ class CampaignAdminForm(forms.ModelForm):
                 campaign=campaign,
                 email=email,
                 defaults={
-                    'full_name':  row.get('full_name',  '').strip(),
+                    'full_name': row.get('full_name', '').strip(),
                     'department': row.get('department', '').strip(),
-                    'position':   row.get('position',   '').strip(),
+                    'position': row.get('position', '').strip(),
+                    'business_unit': row.get('business_unit', '').strip(),
+                    'manager': row.get('manager', '').strip(),
+                    'manager_email': row.get('manager_email', '').strip(),
                 },
             )
             if was_created:
@@ -143,36 +146,119 @@ class CampaignAdminForm(forms.ModelForm):
 
 # ── Email Template Admin ───────────────────────────────────────────────────────
 
+class TinyMCEWidget(forms.Textarea):
+    """
+    Custom widget loading TinyMCE 6 from CDN — no django-tinymce package needed.
+    Supports rich text: fonts, sizes, colours, bold/italic, links, images (base64).
+    """
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault('attrs', {})
+        kwargs['attrs'].update({'style': 'display:none;', 'rows': 30})
+        super().__init__(*args, **kwargs)
+
+    def render(self, name, value, attrs=None, renderer=None):
+        textarea_html = super().render(name, value, attrs, renderer)
+        editor_id     = (attrs or {}).get('id', f'id_{name}')
+        script = f"""
+<script src="https://cdn.jsdelivr.net/npm/tinymce@6/tinymce.min.js"></script>
+<script>
+(function() {{
+    function init() {{
+        if (typeof tinymce === 'undefined') {{ setTimeout(init, 150); return; }}
+        tinymce.remove('#{editor_id}');
+        tinymce.init({{
+            selector: '#{editor_id}',
+            height: 520,
+            menubar: 'file edit view insert format tools',
+            promotion: false,
+            branding: false,
+            plugins: [
+                'advlist','autolink','lists','link','image','charmap',
+                'searchreplace','visualblocks','code','fullscreen',
+                'insertdatetime','table','wordcount','emoticons'
+            ],
+            toolbar: (
+                'undo redo | fontfamily fontsize | ' +
+                'bold italic underline strikethrough | ' +
+                'forecolor backcolor | ' +
+                'alignleft aligncenter alignright alignjustify | ' +
+                'bullist numlist outdent indent | ' +
+                'link image | code fullscreen'
+            ),
+            font_family_formats: (
+                'Arial=arial,helvetica,sans-serif;' +
+                'Courier New=courier new,courier,monospace;' +
+                'Georgia=georgia,palatino;' +
+                'Tahoma=tahoma,arial,helvetica,sans-serif;' +
+                'Times New Roman=times new roman,times;' +
+                'Verdana=verdana,geneva;'
+            ),
+            fontsize_formats: '8pt 9pt 10pt 11pt 12pt 14pt 16pt 18pt 24pt 36pt 48pt',
+            content_style: (
+                'body {{ font-family: Arial, sans-serif; font-size: 14px; ' +
+                'line-height: 1.6; color: #333; margin: 16px; }}'
+            ),
+            image_title: false,
+            automatic_uploads: false,
+            file_picker_types: 'image',
+            file_picker_callback: function(cb, value, meta) {{
+                var input = document.createElement('input');
+                input.setAttribute('type', 'file');
+                input.setAttribute('accept', 'image/*');
+                input.onchange = function() {{
+                    var file = this.files[0];
+                    var reader = new FileReader();
+                    reader.onload = function() {{
+                        var id = 'blobid' + (new Date()).getTime();
+                        var blobCache = tinymce.activeEditor.editorUpload.blobCache;
+                        var base64 = reader.result.split(',')[1];
+                        var blobInfo = blobCache.create(id, file, base64);
+                        blobCache.add(blobInfo);
+                        cb(blobInfo.blobUri(), {{ title: file.name }});
+                    }};
+                    reader.readAsDataURL(file);
+                }};
+                input.click();
+            }},
+            relative_urls: false,
+            remove_script_host: false,
+            convert_urls: false,
+            setup: function(editor) {{
+                editor.on('change', function() {{ editor.save(); }});
+            }}
+        }});
+    }}
+    init();
+}})();
+</script>"""
+        return textarea_html + script
+
+
 class EmailTemplateAdminForm(forms.ModelForm):
     body_html = forms.CharField(
-        widget=forms.Textarea(attrs={'rows': 30, 'cols': 80, 'style': 'font-family:monospace;width:100%;'}),
+        widget=TinyMCEWidget(),
         label='Email Body',
         help_text=mark_safe(
-            '<strong>Plain text mode:</strong> Just type normally. '
-            'Press Enter for a new line, press Enter twice for a new paragraph.<br><br>'
-            '<strong>Clickable link with custom text (plain text mode):</strong><br>'
-            'Use <code>[display text](url)</code> syntax:<br>'
-            '<code>Please click [here]({{ phishing_link }}) to verify your account.</code><br>'
-            'Renders as: Please click <em>here</em> (as a link) to verify your account.<br>'
-            'You can use any text: <code>[Verify Now]({{ phishing_link }})</code>, '
-            '<code>[click this link]({{ phishing_link }})</code>, etc.<br><br>'
-            '<strong>HTML mode:</strong> Write full HTML if you need '
-            'custom colours, images, or complex layouts. '
-            'The editor auto-detects which mode you are using '
-            '(any HTML tags trigger HTML mode).<br><br>'
-            '<strong>Available variables</strong> (work in both modes):<br>'
+            '<strong>Rich text editor:</strong> Use the toolbar to format text, '
+            'change fonts/sizes, add colours, insert links, and embed images '
+            '(click the image icon to upload — images are embedded as base64).<br><br>'
+            '<strong>Available variables</strong> — type anywhere in the body:<br>'
             '<code>{{ target_name }}</code> &nbsp; '
             '<code>{{ target_email }}</code> &nbsp; '
             '<code>{{ target_department }}</code> &nbsp; '
             '<code>{{ phishing_link }}</code> &nbsp; '
             '<code>{{ company_name }}</code> &nbsp; '
-            '<code>{{ campaign_name }}</code>'
+            '<code>{{ campaign_name }}</code><br><br>'
+            '<strong>Phishing link with custom text:</strong> '
+            'Select text, click the link icon, and paste <code>{{ phishing_link }}</code> '
+            'as the URL — or use plain text mode syntax: '
+            '<code>[click here]({{ phishing_link }})</code>'
         ),
     )
 
     class Meta:
         model  = EmailTemplate
-        fields = '__all__'
+        fields = '__all__' 
 
 
 @admin.register(EmailTemplate)
@@ -208,7 +294,7 @@ class CampaignTargetInline(admin.TabularInline):
     model   = CampaignTarget
     extra   = 1
     fields  = (
-        'email', 'full_name', 'department', 'position',
+        'email', 'full_name', 'department', 'position', 'business_unit',
         'email_sent_at', 'email_failed', 'link_clicked_at',
         'lms_completed_at', 'quiz_score',
     )
@@ -423,9 +509,12 @@ class CampaignAdmin(admin.ModelAdmin):
                 campaign=obj,
                 email=email,
                 defaults={
-                    'full_name':  row.get('full_name',  '').strip(),
+                    'full_name': row.get('full_name', '').strip(),
                     'department': row.get('department', '').strip(),
-                    'position':   row.get('position',   '').strip(),
+                    'position': row.get('position', '').strip(),
+                    'business_unit': row.get('business_unit', '').strip(),
+                    'manager': row.get('manager', '').strip(),
+                    'manager_email': row.get('manager_email', '').strip(),
                 },
             )
             if was_created:
@@ -527,9 +616,12 @@ class CampaignAdmin(admin.ModelAdmin):
                     campaign=campaign,
                     email=email,
                     defaults={
-                        'full_name':  row.get('full_name',  '').strip(),
+                        'full_name': row.get('full_name', '').strip(),
                         'department': row.get('department', '').strip(),
-                        'position':   row.get('position',   '').strip(),
+                        'position': row.get('position', '').strip(),
+                        'business_unit': row.get('business_unit', '').strip(),
+                        'manager': row.get('manager', '').strip(),
+                        'manager_email': row.get('manager_email', '').strip(),
                     },
                 )
                 if was_created:
@@ -591,9 +683,12 @@ class CampaignAdmin(admin.ModelAdmin):
             '<table>'
             '<tr><th>Column</th><th>Required</th><th>Description</th></tr>'
             '<tr><td><code>email</code></td><td>&#10003; Yes</td><td>Employee email address</td></tr>'
-            '<tr><td><code>full_name</code></td><td>No</td><td>Full name (used in {{ target_name }})</td></tr>'
+            '<tr><td><code>full_name</code></td><td>No</td><td>Full name</td></tr>'
             '<tr><td><code>department</code></td><td>No</td><td>Department</td></tr>'
             '<tr><td><code>position</code></td><td>No</td><td>Job title</td></tr>'
+            '<tr><td><code>business_unit</code></td><td>No</td><td>Business unit</td></tr>'
+            '<tr><td><code>manager</code></td><td>No</td><td>Manager full name</td></tr>'
+            '<tr><td><code>manager_email</code></td><td>No</td><td>Manager email address</td></tr>'
             '</table>'
             '<p style="margin-top:10px;font-size:12px;color:#666;">'
             'Example row:<br>'
@@ -703,7 +798,7 @@ class CampaignAdmin(admin.ModelAdmin):
 @admin.register(CampaignTarget)
 class CampaignTargetAdmin(admin.ModelAdmin):
     list_display  = (
-        'email', 'full_name', 'department', 'campaign',
+        'email', 'full_name', 'department', 'business_unit', 'campaign', 'manager', 'manager_email',
         'email_sent_at', 'clicked_display', 'lms_completed_at', 'quiz_score',
     )
     list_filter   = (
@@ -720,7 +815,10 @@ class CampaignTargetAdmin(admin.ModelAdmin):
 
     fieldsets = (
         ('Employee Info', {
-            'fields': ('campaign', 'email', 'full_name', 'department', 'position')
+            'fields': (
+                'campaign', 'email', 'full_name', 'department',
+                'position', 'business_unit', 'manager', 'manager_email'
+            )
         }),
         ('Phishing Link', {
             'fields': ('token', 'phishing_link_display'),

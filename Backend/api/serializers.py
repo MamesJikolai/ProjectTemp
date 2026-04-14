@@ -190,6 +190,7 @@ class CampaignTargetSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'campaign', 'campaign_name',
             'email', 'full_name', 'department', 'position',
+            'business_unit', 'manager', 'manager_email',
             'token', 'phishing_link',
             'email_sent_at', 'email_failed', 'email_error',
             'link_clicked_at', 'click_ip',
@@ -384,8 +385,21 @@ class PlatformSettingsSerializer(serializers.Serializer):
     landing_message1     = serializers.CharField()
     landing_message2     = serializers.CharField()
     landing_button_text  = serializers.CharField(max_length=100)
+    # Logo
     logo_url             = serializers.SerializerMethodField()
-    updated_at           = serializers.DateTimeField(read_only=True)
+    # Reminder / notification settings
+    reminder_enabled       = serializers.BooleanField()
+    reminder_days          = serializers.IntegerField(min_value=1)
+    manager_notify_enabled = serializers.BooleanField()
+    # Reminder SMTP (write-only password — never returned)
+    reminder_from_name     = serializers.CharField(max_length=255, allow_blank=True)
+    reminder_from_email    = serializers.EmailField(allow_blank=True)
+    reminder_smtp_host     = serializers.CharField(max_length=255, allow_blank=True)
+    reminder_smtp_port     = serializers.IntegerField(default=587)
+    reminder_smtp_user     = serializers.CharField(max_length=255, allow_blank=True)
+    reminder_smtp_use_tls  = serializers.BooleanField()
+    reminder_smtp_use_ssl  = serializers.BooleanField()
+    updated_at             = serializers.DateTimeField(read_only=True)
 
     def get_logo_url(self, obj):
         request = self.context.get('request')

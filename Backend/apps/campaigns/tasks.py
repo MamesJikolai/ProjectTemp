@@ -340,3 +340,220 @@ def check_scheduled_campaigns():
             # Fallback to sync if Django-Q not available
             logger.warning(f'Django-Q unavailable ({e}), launching synchronously.')
             _launch_sync(campaign.id)
+
+# ── Reminder and Manager Notification ─────────────────────────────────────────
+
+def _get_reminder_backend():
+    """
+    Build an SMTP backend from PlatformSettings reminder credentials.
+    Returns None if not configured.
+    """
+    from apps.settings_app.models import PlatformSettings
+    from django.core.mail.backends.smtp import EmailBackend
+
+    ps = PlatformSettings.get()
+    if not ps.reminder_smtp_host or not ps.reminder_from_email:
+        return None, None
+    backend = EmailBackend(
+        host=ps.reminder_smtp_host,
+        port=ps.reminder_smtp_port,
+        username=ps.reminder_smtp_user,
+        password=ps.reminder_smtp_password,
+        use_tls=ps.reminder_smtp_use_tls,
+        use_ssl=ps.reminder_smtp_use_ssl,
+        fail_silently=False,
+        timeout=15,
+    )
+    from_header = f'{ps.reminder_from_name} <{ps.reminder_from_email}>'
+    return backend, from_header
+
+
+def send_manager_notification(target_id: int):
+    """
+    Django-Q2 task — notifies the target's manager when the employee
+    clicks the phishing link.
+
+    Triggered by tracking_views.phishing_click() on first click.
+    Only runs if:
+      - PlatformSettings.manager_notify_enabled = True
+      - target.manager_email is set
+    """
+    from apps.campaigns.models import CampaignTarget
+    from apps.settings_app.models import PlatformSettings
+    from django.core.mail import EmailMultiAlternatives
+
+    try:
+        target = CampaignTarget.objects.select_related('campaign').get(id=target_id)
+    except CampaignTarget.DoesNotExist:
+        logger.error(f'Manager notification: target {target_id} not found.')
+        return
+
+    ps = PlatformSettings.get()
+    if not ps.manager_notify_enabled:
+        return
+    if not target.manager_email:
+        logger.info(
+            f'Manager notification skipped for {target.email} '
+            f'— no manager_email on record.'
+        )
+        return
+
+    backend, from_header = _get_reminder_backend()
+    if not backend:
+        logger.warning('Manager notification skipped — reminder SMTP not configured.')
+        return
+
+    target_name    = target.full_name or target.email.split('@')[0]
+    manager_name   = target.manager or 'Manager'
+    campaign_name  = target.campaign.name
+    company_name   = ps.platform_name
+
+    subject = f'[{company_name}] Security Alert: {target_name} clicked a phishing link'
+
+    html_body = (
+        f'<p>Dear {manager_name},</p>'
+        f'<p>This is an automated notification from the <strong>{company_name}</strong> '
+        f'Security Awareness Program.</p>'
+        f'<p>Your team member <strong>{target_name}</strong> '
+        f'({target.email}) clicked a simulated phishing link as part of the '
+        f'<strong>{campaign_name}</strong> campaign.</p>'
+        f'<p>They have been redirected to the security awareness training module. '
+        f'You may wish to follow up with them to reinforce good security practices.</p>'
+        f'<p>This message was sent automatically. Please do not reply.</p>'
+        f'<p>— {company_name} Security Team</p>'
+    )
+
+    try:
+        msg = EmailMultiAlternatives(
+            subject=subject,
+            body=f'{target_name} ({target.email}) clicked a phishing link in {campaign_name}.',
+            from_email=from_header,
+            to=[target.manager_email],
+            connection=backend,
+        )
+        msg.attach_alternative(html_body, 'text/html')
+        msg.send()
+        logger.info(
+            f'Manager notification sent to {target.manager_email} '
+            f'for target {target.email}.'
+        )
+    except Exception as exc:
+        logger.error(f'Manager notification failed for {target.email}: {exc}')
+
+
+def send_reminder_email(target_id: int):
+    """
+    Django-Q2 task — sends a follow-up reminder to an employee who
+    clicked the phishing link but has not completed training.
+
+    Triggered by check_reminder_emails() schedule.
+    """
+    from apps.campaigns.models import CampaignTarget
+    from apps.settings_app.models import PlatformSettings
+    from django.core.mail import EmailMultiAlternatives
+
+    try:
+        target = CampaignTarget.objects.select_related('campaign').get(id=target_id)
+    except CampaignTarget.DoesNotExist:
+        logger.error(f'Reminder email: target {target_id} not found.')
+        return
+
+    # Double-check they still haven't completed (race condition guard)
+    if target.lms_completed_at:
+        logger.info(f'Reminder skipped for {target.email} — already completed.')
+        return
+
+    ps = PlatformSettings.get()
+    backend, from_header = _get_reminder_backend()
+    if not backend:
+        logger.warning('Reminder email skipped — reminder SMTP not configured.')
+        return
+
+    target_name  = target.full_name or target.email.split('@')[0]
+    company_name = ps.platform_name
+
+    # Build the LMS link
+    frontend_url = ps.frontend_url.rstrip('/')
+    lms_path     = ps.lms_path.strip('/')
+    path_part    = f'/{lms_path}' if lms_path else ''
+    lms_url      = f'{frontend_url}{path_part}?token={target.token}'
+
+    subject = f'[{company_name}] Reminder: Please complete your security awareness training'
+
+    html_body = (
+        f'<p>Dear {target_name},</p>'
+        f'<p>This is a reminder that you have not yet completed your required '
+        f'<strong>Security Awareness Training</strong> for '
+        f'<strong>{company_name}</strong>.</p>'
+        f'<p>Please click the link below to continue your training:</p>'
+        f'<p><a href="{lms_url}" style="background:#024C89;color:white;'
+        f'padding:10px 20px;border-radius:4px;text-decoration:none;'
+        f'display:inline-block;">Continue Training</a></p>'
+        f'<p>If the button does not work, copy and paste this link:<br>'
+        f'<a href="{lms_url}">{lms_url}</a></p>'
+        f'<p>This message was sent automatically. Please do not reply.</p>'
+        f'<p>— {company_name} Security Team</p>'
+    )
+
+    try:
+        msg = EmailMultiAlternatives(
+            subject=subject,
+            body=f'Please complete your security awareness training: {lms_url}',
+            from_email=from_header,
+            to=[target.email],
+            connection=backend,
+        )
+        msg.attach_alternative(html_body, 'text/html')
+        msg.send()
+        logger.info(f'Reminder email sent to {target.email}.')
+    except Exception as exc:
+        logger.error(f'Reminder email failed for {target.email}: {exc}')
+
+
+def check_reminder_emails():
+    """
+    Runs on schedule — finds targets who:
+      1. Clicked the phishing link
+      2. Have NOT completed LMS
+      3. Clicked more than reminder_days ago
+      4. Have not yet been sent a reminder (we track via a flag or simply
+         check if a prior reminder was sent — simplest: re-send daily
+         until completed, up to the reminder_days window)
+
+    Runs every hour via Django-Q2 scheduler.
+    """
+    from apps.campaigns.models import CampaignTarget
+    from apps.settings_app.models import PlatformSettings
+    from django_q.tasks import async_task
+    from django.utils import timezone
+    from datetime import timedelta
+
+    ps = PlatformSettings.get()
+    if not ps.reminder_enabled:
+        return
+
+    cutoff = timezone.now() - timedelta(days=ps.reminder_days)
+
+    # Targets who clicked at or before the cutoff and haven't completed
+    due = CampaignTarget.objects.filter(
+        link_clicked_at__isnull=False,
+        link_clicked_at__lte=cutoff,
+        lms_completed_at__isnull=True,
+    )
+
+    count = 0
+    for target in due:
+        try:
+            async_task(
+                'apps.campaigns.tasks.send_reminder_email',
+                target.id,
+                task_name=f'reminder-{target.id}',
+            )
+            count += 1
+        except Exception as e:
+            # Fallback sync
+            send_reminder_email(target.id)
+            count += 1
+
+    if count:
+        logger.info(f'Reminder emails queued: {count}')

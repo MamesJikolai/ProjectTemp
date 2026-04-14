@@ -19,24 +19,38 @@ def phishing_click(request, token):
     Employees land here after clicking the phishing link in their email.
 
     1. Records the click (timestamp, IP, user-agent)
-    2. Redirects to the React frontend LMS page:
-           <frontend_url>/<lms_path>?token=<uuid>
-
-       Both frontend_url and lms_path are configurable from:
-           /admin/settings_app/platformsettings/
-
-       Example result:  http://localhost:5173/lms?token=<uuid>
-       Change lms_path to "training" and it becomes:
-                        http://localhost:5173/training?token=<uuid>
+    2. Triggers manager notification if enabled and this is the first click
+    3. Redirects to the React frontend LMS page
     """
     target = get_object_or_404(CampaignTarget, token=token)
 
+    is_first_click = not target.link_clicked_at
+
     # Record first click only
-    if not target.link_clicked_at:
+    if is_first_click:
         target.link_clicked_at  = timezone.now()
         target.click_ip         = _get_client_ip(request)
         target.click_user_agent = request.META.get('HTTP_USER_AGENT', '')[:500]
         target.save(update_fields=['link_clicked_at', 'click_ip', 'click_user_agent'])
+
+        # Queue manager notification on first click
+        if target.manager_email:
+            try:
+                from apps.settings_app.models import PlatformSettings
+                ps = PlatformSettings.get()
+                if ps.manager_notify_enabled:
+                    from django_q.tasks import async_task
+                    async_task(
+                        'apps.campaigns.tasks.send_manager_notification',
+                        target.id,
+                        task_name=f'mgr-notify-{target.id}',
+                    )
+            except Exception as e:
+                # Non-fatal — log but don't break the redirect
+                import logging
+                logging.getLogger(__name__).warning(
+                    f'Manager notification queueing failed for {target.email}: {e}'
+                )
 
     # Read frontend_url and lms_path from PlatformSettings (with .env fallback)
     try:

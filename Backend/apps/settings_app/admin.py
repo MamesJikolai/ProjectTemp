@@ -25,11 +25,35 @@ class SMTPTestForm(forms.Form):
     to_email      = forms.EmailField(label='Send test to')
 
 
+class PlatformSettingsAdminForm(forms.ModelForm):
+    reminder_smtp_password_field = forms.CharField(
+        widget=forms.PasswordInput(render_value=False),
+        required=False,
+        label='Reminder SMTP Password',
+        help_text='Leave blank to keep the existing password.',
+    )
+
+    class Meta:
+        model  = PlatformSettings
+        fields = '__all__'
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        new_pw = self.cleaned_data.get('reminder_smtp_password_field', '')
+        if new_pw:
+            instance.reminder_smtp_password = new_pw
+        if commit:
+            instance.save()
+            self.save_m2m()
+        return instance
+
+
 @admin.register(PlatformSettings)
 class PlatformSettingsAdmin(admin.ModelAdmin):
+    form = PlatformSettingsAdminForm
     fieldsets = (
         ('General', {
-            'fields': ('platform_name', 'logo'),
+            'fields': ('platform_name',),
         }),
         ('URLs', {
             'fields': ('platform_base_url', 'frontend_url', 'lms_path'),
@@ -45,6 +69,7 @@ class PlatformSettingsAdmin(admin.ModelAdmin):
         ('Landing Page Content', {
             'fields': (
                 'landing_title',
+                'logo',
                 'landing_message1',
                 'landing_message2',
                 'landing_button_text',
@@ -57,6 +82,39 @@ class PlatformSettingsAdmin(admin.ModelAdmin):
         }),
         ('LMS', {
             'fields': ('session_expiry_days', 'allow_quiz_retake'),
+        }),
+        ('Email Reminders', {
+            'fields': (
+                'reminder_enabled',
+                'reminder_days',
+                'manager_notify_enabled',
+            ),
+            'description': (
+                '<strong>Reminder email</strong> — sent to the employee if they '
+                'clicked the phishing link but have not completed training after '
+                'the configured number of days.<br>'
+                '<strong>Manager notification</strong> — sent to the target&#39;s '
+                'manager (if <code>manager_email</code> is set on the target) '
+                'when the employee clicks the phishing link.'
+            ),
+        }),
+        ('Reminder SMTP (separate from campaign SMTP)', {
+            'fields': (
+                'reminder_from_name',
+                'reminder_from_email',
+                'reminder_smtp_host',
+                'reminder_smtp_port',
+                'reminder_smtp_user',
+                'reminder_smtp_password_field',
+                'reminder_smtp_use_tls',
+                'reminder_smtp_use_ssl',
+            ),
+            'classes': ('collapse',),
+            'description': (
+                'SMTP credentials used to send reminder and manager notification '
+                'emails. Can be the same as or different from campaign SMTP. '
+                'Leave blank to disable even if reminders are enabled.'
+            ),
         }),
         ('SMTP Test', {
             'fields': (),

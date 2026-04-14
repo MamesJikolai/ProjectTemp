@@ -1352,11 +1352,21 @@ class PlatformSettingsView(APIView):
             'platform_name', 'platform_base_url', 'frontend_url',
             'default_from_name', 'session_expiry_days', 'allow_quiz_retake',
             'landing_title', 'landing_message1',
-            'landing_message2', 'landing_button_text',
+            'landing_message2', 'landing_button_text', 'lms_path',
+            # Reminder / notification
+            'reminder_enabled', 'reminder_days', 'manager_notify_enabled',
+            'reminder_from_name', 'reminder_from_email',
+            'reminder_smtp_host', 'reminder_smtp_port',
+            'reminder_smtp_user', 'reminder_smtp_use_tls', 'reminder_smtp_use_ssl',
         ]
         for field in updatable:
             if field in d:
                 setattr(settings_obj, field, d[field])
+
+        # reminder_smtp_password is write-only — handle separately via property
+        reminder_pw = request.data.get('reminder_smtp_password', '').strip()
+        if reminder_pw:
+            settings_obj.reminder_smtp_password = reminder_pw
 
         if 'logo' in request.FILES:
             settings_obj.logo = request.FILES['logo']
