@@ -16,7 +16,7 @@ const initialConfig: SMTPTest = {
     from_email: '',
     to_email: '',
     smtp_use_ssl: false,
-    smtp_use_tls: false,
+    smtp_use_tls: true,
 }
 
 function SMTPConfigurationForm({ mode }: SMTPConfigurationFormProps) {
