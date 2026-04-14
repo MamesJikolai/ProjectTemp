@@ -371,9 +371,12 @@ class CampaignTargetViewSet(viewsets.ModelViewSet):
                 campaign=campaign,
                 email=email,
                 defaults={
-                    'full_name':  row.get('full_name',  '').strip(),
+                    'full_name': row.get('full_name', '').strip(),
                     'department': row.get('department', '').strip(),
-                    'position':   row.get('position',   '').strip(),
+                    'position': row.get('position', '').strip(),
+                    'business_unit': row.get('business_unit', '').strip(),
+                    'manager': row.get('manager', '').strip(),
+                    'manager_email': row.get('manager_email', '').strip(),
                 },
             )
             if was_created:
@@ -1258,6 +1261,7 @@ class ExportCampaignCSVView(APIView):
         writer = csv.writer(response)
         writer.writerow([
             'Full Name', 'Email', 'Department', 'Position',
+            'Business Unit', 'Manager', 'Manager Email',
             'Email Sent', 'Email Failed', 'Link Clicked',
             'LMS Started', 'LMS Completed', 'Quiz Score',
         ])
@@ -1286,7 +1290,7 @@ class ExportAllCSVView(APIView):
         writer = csv.writer(response)
         writer.writerow([
             'Campaign', 'Full Name', 'Email', 'Department', 'Position',
-            'Business Unit', 'Manager', 'Manager Email'
+            'Business Unit', 'Manager', 'Manager Email',
             'Email Sent', 'Email Failed', 'Link Clicked',
             'LMS Started', 'LMS Completed', 'Quiz Score',
         ])
