@@ -137,6 +137,9 @@ export interface User {
     full_name: string
     department: string
     position: string
+    // business_unit: string
+    // manager: string
+    // manager_email: string
     token: string
     phishing_link: string
     email_sent_at: string | null
@@ -190,6 +193,21 @@ export interface SMTPTest {
     to_email: string
 }
 
+export interface ManagerReminder {
+    reminder_enabled: boolean
+    reminder_days: number
+    manager_notify_enabled: boolean
+    reminder_from_name: string
+    reminder_from_email: string
+    reminder_smtp_host: string
+    reminder_smtp_port: number
+    reminder_smtp_user: string
+    reminder_smtp_password: string
+    reminder_smtp_use_tls: boolean
+    reminder_smtp_use_ssl: boolean
+    updated_at: string
+}
+
 export interface AnalyticsStats {
     total_campaigns: number
     total_sent: number
@@ -203,6 +221,7 @@ export interface AnalyticsResponse {
     summary: AnalyticsStats
     campaigns: any[]
     department_stats: any[]
+    business_unit_stats: any[]
 }
 
 export interface DashboardStats {
