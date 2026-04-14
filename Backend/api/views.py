@@ -1202,6 +1202,17 @@ class AnalyticsView(APIView):
             .order_by('-clicked')[:10]
         )
 
+        bu_stats = (
+            CampaignTarget.objects
+            .exclude(business_unit='')
+            .values('business_unit')
+            .annotate(
+                total=Count('id'),
+                clicked=Count('id', filter=Q(link_clicked_at__isnull=False)),
+            )
+            .order_by('-clicked')[:10]
+        )
+
         campaigns_data = []
         for c in campaigns:
             campaigns_data.append({
@@ -1227,6 +1238,7 @@ class AnalyticsView(APIView):
             },
             'campaigns':       campaigns_data,
             'department_stats': list(dept_stats),
+            'business_unit_stats': list(bu_stats),
         })
 
 
