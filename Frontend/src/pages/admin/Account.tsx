@@ -81,7 +81,7 @@ function Account() {
     const handleLogout = () => {
         // Use context logout and React Router navigate
         logout()
-        navigate('/home')
+        navigate('/login')
     }
 
     // Since AuthContext acts as the gatekeeper, 'user' is guaranteed to exist here
