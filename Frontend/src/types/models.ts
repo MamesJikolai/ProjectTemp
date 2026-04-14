@@ -137,9 +137,15 @@ export interface User {
     full_name: string
     department: string
     position: string
-    // business_unit: string
-    // manager: string
-    // manager_email: string
+    business_unit:
+        | 'Ortigas'
+        | 'Clark'
+        | 'Pangasinan'
+        | 'South Luzon'
+        | 'Iloilo'
+        | 'Proser'
+    manager: string
+    manager_email: string
     token: string
     phishing_link: string
     email_sent_at: string | null

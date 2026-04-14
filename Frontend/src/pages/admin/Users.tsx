@@ -91,6 +91,10 @@ function Users() {
                 header: 'Manager',
             },
             {
+                accessorKey: 'manager_email',
+                header: 'Manager Email',
+            },
+            {
                 accessorKey: 'campaign_name',
                 header: 'Campaign',
                 meta: { filterVariant: 'select' },
