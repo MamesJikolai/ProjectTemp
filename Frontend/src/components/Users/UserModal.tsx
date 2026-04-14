@@ -7,7 +7,6 @@ interface UserModalProps {
     isOpen: boolean
     onClose: () => void
     initialData?: User | null
-    // 1. FIXED: Use Partial<User> here so TypeScript stops yelling!
     onSave: (user: Partial<User>) => void
 }
 
