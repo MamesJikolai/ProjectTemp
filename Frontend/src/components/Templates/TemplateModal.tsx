@@ -95,6 +95,7 @@ function TemplateModal({
                 <TextInput
                     label="Name"
                     type="text"
+                    name="name"
                     placeholder="Template Name"
                     value={emailTemplateData.name}
                     onChange={handleInputChange}
@@ -105,6 +106,7 @@ function TemplateModal({
                 <TextInput
                     label="Author"
                     type="text"
+                    name="author"
                     placeholder="Template Author"
                     value={emailTemplateData.author}
                     onChange={handleInputChange}
@@ -115,6 +117,7 @@ function TemplateModal({
                 <TextInput
                     label="Sender"
                     type="text"
+                    name="sender_name"
                     placeholder="Sender Name"
                     value={emailTemplateData.sender_name}
                     onChange={handleInputChange}
@@ -125,6 +128,7 @@ function TemplateModal({
                 <TextInput
                     label="Company Name"
                     type="text"
+                    name="company_name"
                     placeholder="Dummy Company Name"
                     value={emailTemplateData.company_name}
                     onChange={handleInputChange}
@@ -135,6 +139,7 @@ function TemplateModal({
                 <TextInput
                     label="Subject"
                     type="text"
+                    name="subject"
                     placeholder="Email Subject"
                     value={emailTemplateData.subject}
                     onChange={handleInputChange}
@@ -144,6 +149,7 @@ function TemplateModal({
 
                 <TextField
                     label="Body"
+                    name="body_html"
                     description={!isViewOnly && bodyDescription}
                     placeholder="Email Body"
                     value={emailTemplateData.body_html}
