@@ -8,9 +8,9 @@ import { useAuth } from '../../context/AuthContext.tsx'
 interface TemplateModalProps {
     isOpen: boolean
     onClose: () => void
-    mode: 'create' | 'view' | 'edit'
+    mode: 'create' | 'edit'
     initialData?: EmailTemplate | null
-    onSave: (template: EmailTemplate) => void
+    onSave: (template: EmailTemplate, file: File | null) => void
 }
 
 function TemplateModal({
@@ -29,12 +29,11 @@ function TemplateModal({
         company_name: initialData?.company_name || '',
         subject: initialData?.subject || '',
         body_html: initialData?.body_html || '',
-        email_signature: initialData?.email_signature || '',
+        signature_image_url: initialData?.signature_image_url || '',
         created_at: initialData?.created_at || new Date().toLocaleString(),
     })
     const [error, setError] = useState('')
-
-    const isViewOnly = mode === 'view'
+    const [signatureFile, setSignatureFile] = useState<File | null>(null)
 
     const handleInputChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -83,7 +82,6 @@ function TemplateModal({
                 <h2>
                     {mode === 'create' && 'Create Template'}
                     {mode === 'edit' && 'Edit Template'}
-                    {mode === 'view' && 'Template Details'}
                 </h2>
 
                 {error && (
@@ -100,7 +98,6 @@ function TemplateModal({
                     value={emailTemplateData.name}
                     onChange={handleInputChange}
                     className="w-full"
-                    disabled={isViewOnly}
                 />
 
                 <TextInput
@@ -122,7 +119,6 @@ function TemplateModal({
                     value={emailTemplateData.sender_name}
                     onChange={handleInputChange}
                     className="w-full"
-                    disabled={isViewOnly}
                 />
 
                 <TextInput
@@ -133,7 +129,6 @@ function TemplateModal({
                     value={emailTemplateData.company_name}
                     onChange={handleInputChange}
                     className="w-full"
-                    disabled={isViewOnly}
                 />
 
                 <TextInput
@@ -144,40 +139,32 @@ function TemplateModal({
                     value={emailTemplateData.subject}
                     onChange={handleInputChange}
                     className="w-full"
-                    disabled={isViewOnly}
                 />
 
                 <TextField
                     label="Body"
                     name="body_html"
-                    description={!isViewOnly && bodyDescription}
+                    description={bodyDescription}
                     placeholder="Email Body"
                     value={emailTemplateData.body_html}
                     onChange={handleInputChange}
                     className="w-full"
-                    disabled={isViewOnly}
-                    rows={isViewOnly ? 12 : 10}
+                    rows={12}
                 />
 
-                {isViewOnly ? (
-                    ''
-                ) : (
-                    <TextInput
-                        label="Email Signature"
-                        type="file"
-                        accept="image/png, image/jpeg, .png, .jpg, .jpeg,"
-                    />
-                )}
+                <TextInput
+                    label="Email Signature"
+                    type="file"
+                    accept="image/png, image/jpeg, .png, .jpg, .jpeg,"
+                    onChange={handleFileChange}
+                />
 
-                {/* Hide the submit button completely if we are just viewing */}
-                {!isViewOnly && (
-                    <DefaultButton
-                        type="submit"
-                        className="w-full bg-[#024C89] hover:bg-[#3572A1] text-[#F8F9FA] self-center mt-4"
-                    >
-                        {mode === 'create' ? 'Create' : 'Save Changes'}
-                    </DefaultButton>
-                )}
+                <DefaultButton
+                    type="submit"
+                    className="w-full bg-[#024C89] hover:bg-[#3572A1] text-[#F8F9FA] self-center mt-4"
+                >
+                    {mode === 'create' ? 'Create' : 'Save Changes'}
+                </DefaultButton>
             </form>
         </div>
     )

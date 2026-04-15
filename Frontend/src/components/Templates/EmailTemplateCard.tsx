@@ -3,14 +3,12 @@ import DefaultButton from '../DefaultButton'
 
 interface EmailTemplateCardProps {
     emailTemplate: EmailTemplate[]
-    openViewModal: (templateData: EmailTemplate) => void
     openEditModal: (templateData: EmailTemplate) => void
     handleDeleteTemplate: (templateData: EmailTemplate) => void
 }
 
 function EmailTemplateCard({
     emailTemplate,
-    openViewModal,
     openEditModal,
     handleDeleteTemplate,
 }: EmailTemplateCardProps) {
@@ -48,11 +46,6 @@ function EmailTemplateCard({
                         </p>
                     </div>
                     <div className="flex flex-row justify-around text-[12px]">
-                        <DefaultButton
-                            children="View"
-                            className="text-[#17A2B8] hover:text-[#4ECFE0] font-bold"
-                            onClick={() => openViewModal(item)}
-                        />
                         <DefaultButton
                             children="Edit"
                             className="text-[#28A745] hover:text-[#45C664] font-bold"

@@ -10,9 +10,7 @@ function Templates() {
     const [data, setData] = useState<EmailTemplate[]>([])
     const [isLoading, setIsLoading] = useState(true)
     const [isModalOpen, setIsModalOpen] = useState(false)
-    const [modalMode, setModalMode] = useState<'create' | 'view' | 'edit'>(
-        'create'
-    )
+    const [modalMode, setModalMode] = useState<'create' | 'edit'>('create')
     const [selectedTemplate, setSelectedTemplate] =
         useState<EmailTemplate | null>(null)
 
@@ -121,7 +119,6 @@ function Templates() {
             ) : (
                 <EmailTemplateCard
                     emailTemplate={data}
-                    openViewModal={openViewModal}
                     openEditModal={openEditModal}
                     handleDeleteTemplate={handleDeleteTemplate}
                 />
