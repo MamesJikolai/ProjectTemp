@@ -8,7 +8,7 @@ interface TemplateProps {
     landing_message1: string
     landing_message2?: string
     landing_button_text: string
-    logo_url?: string
+    logo?: string
     updated_at?: string
 }
 
@@ -31,8 +31,6 @@ function PhishingPage({
 
         if (token) {
             localStorage.setItem('lms_token', token)
-            // Optional: You could even remove it from the URL here so the user doesn't copy/share it
-            // window.history.replaceState({}, document.title, window.location.pathname);
         }
     }, [previewTemplate])
 
@@ -47,7 +45,7 @@ function PhishingPage({
                     landing_message1: data.landing_message1,
                     landing_message2: data.landing_message2,
                     landing_button_text: data.landing_button_text,
-                    logo_url: data.logo_url,
+                    logo: data.logo,
                     updated_at: data.updated_at || new Date().toLocaleString(),
                 })
             } catch (err) {
@@ -60,7 +58,7 @@ function PhishingPage({
                     landing_message2:
                         'Your security is a priority. Please follow the link below to complete your required phishing awareness module.',
                     landing_button_text: 'Go to Training Portal',
-                    logo_url: '',
+                    logo: '',
                     updated_at: new Date().toLocaleString(),
                 })
             } finally {
@@ -91,9 +89,9 @@ function PhishingPage({
                 previewTemplate ? 'h-full' : 'h-screen'
             }`}
         >
-            {displayTemplate.logo_url && (
+            {displayTemplate.logo && (
                 <img
-                    src={displayTemplate.logo_url}
+                    src={displayTemplate.logo}
                     alt="Logo"
                     className="max-h-24 object-contain"
                 />

@@ -94,32 +94,24 @@ function LandingPage() {
         }
 
         try {
-            const formData = new FormData()
-
-            // Append standard text fields
-            formData.append('landing_title', landingPageData.landing_title)
-            formData.append(
-                'landing_message1',
-                landingPageData.landing_message1
-            )
-            formData.append(
-                'landing_message2',
-                landingPageData.landing_message2
-            )
-            formData.append(
-                'landing_button_text',
-                landingPageData.landing_button_text
-            )
-
-            // Append file if one was selected
-            if (logoFile) {
-                formData.append('logo', logoFile)
+            const textPayload = {
+                landing_title: landingPageData.landing_title,
+                landing_message1: landingPageData.landing_message1,
+                landing_message2: landingPageData.landing_message2,
+                landing_button_text: landingPageData.landing_button_text,
             }
 
-            // Using FormData requires we send it directly
-            await apiService.updateSingleton('settings', formData)
+            await apiService.updateSingleton('settings', textPayload)
+
+            if (logoFile) {
+                const formData = new FormData()
+                formData.append('logo', logoFile)
+
+                await apiService.uploadFile('settings/upload-logo/', formData)
+            }
+
             alert('Template saved to database!')
-            setLogoFile(null) // Reset file state after successful upload
+            setLogoFile(null)
         } catch (err) {
             console.error('Failed to save template:', err)
             setError('Failed to save template to the database.')
