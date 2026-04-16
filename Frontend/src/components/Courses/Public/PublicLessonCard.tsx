@@ -22,26 +22,31 @@ function PublicLessonCard({
 }: PublicLessonCardProps) {
     const embedUrl = getEmbedUrl(item.video_url)
 
-    const [videoCompleted, setVideoCompleted] = useState(false)
-    const [contentCompleted, setContentCompleted] = useState(false)
-    const [hasViewed, setHasViewed] = useState(false)
-    const contentEndRef = useRef<HTMLDivElement>(null)
-
     const hasVideo = Boolean(embedUrl && embedUrl.trim() !== '')
     const hasContent = Boolean(
         item.content_html && item.content_html.trim() !== ''
     )
-    const [isReported, setIsReported] = useState(false)
+
+    const [videoCompleted, setVideoCompleted] = useState(false)
+    const [contentCompleted, setContentCompleted] = useState(!hasContent)
+    const [hasViewed, setHasViewed] = useState(false)
+
+    const contentEndRef = useRef<HTMLDivElement>(null)
+    const isReportedRef = useRef(false)
+
+    if (isOpen && !hasViewed) {
+        setHasViewed(true)
+    }
 
     // Track when user scrolls to the bottom of the text content
     useEffect(() => {
-        if (!hasContent) {
-            setContentCompleted(true) // Auto-complete if there is no text content
-            return
-        }
-
         // Only track when the lesson is open
-        if (isOpen && contentEndRef.current) {
+        if (
+            isOpen &&
+            hasContent &&
+            !contentCompleted &&
+            contentEndRef.current
+        ) {
             const observer = new IntersectionObserver(
                 (entries) => {
                     if (entries[0].isIntersecting) {
@@ -54,23 +59,18 @@ function PublicLessonCard({
             observer.observe(contentEndRef.current)
             return () => observer.disconnect()
         }
-    }, [hasContent, isOpen])
-
-    useEffect(() => {
-        if (isOpen && !hasViewed) {
-            setHasViewed(true)
-        }
-    }, [isOpen, hasViewed])
+    }, [hasContent, isOpen, contentCompleted])
 
     // Trigger the completion callback when requirements are met
     useEffect(() => {
-        if (item.id && !isReported && hasViewed) {
+        if (item.id && !isReportedRef.current && hasViewed) {
             const isVideoDone = hasVideo ? videoCompleted : true
             const isContentDone = hasContent ? contentCompleted : true
 
             if (isVideoDone && isContentDone && onLessonCompleted) {
                 onLessonCompleted(item.id)
-                setIsReported(true)
+                // Mutate the ref instead of triggering a setState re-render
+                isReportedRef.current = true
             }
         }
     }, [
@@ -80,21 +80,8 @@ function PublicLessonCard({
         hasContent,
         item.id,
         onLessonCompleted,
-        isReported,
         hasViewed,
     ])
-
-    const formatHtmlContent = (rawHtml: string | null | undefined) => {
-        if (!rawHtml) return ''
-
-        const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g
-        const parsedHtml = rawHtml.replace(linkRegex, (text, url) => {
-            return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline font-medium">${text}</a>`
-        })
-
-        // Scrub the HTML clean of any malicious scripts before returning it
-        return DOMPurify.sanitize(parsedHtml)
-    }
 
     return (
         <div className="bg-[#F8F9FA] rounded-xl px-6 py-4 md:px-8 md:py-6 w-full shadow-sm border border-gray-100">
@@ -124,9 +111,12 @@ function PublicLessonCard({
             >
                 <div className="flex flex-col gap-4 overflow-hidden">
                     {/* Lesson Description */}
-                    <p className="text-gray-700 text-justify whitespace-pre-wrap">
-                        {item.description}
-                    </p>
+                    <div
+                        className="text-gray-700 text-justify whitespace-pre-wrap prose prose-sm max-w-none"
+                        dangerouslySetInnerHTML={{
+                            __html: DOMPurify.sanitize(item.description),
+                        }}
+                    />
 
                     {/* Embedded Video */}
                     {(embedUrl || embedUrl.trim() !== '') && (
@@ -139,9 +129,9 @@ function PublicLessonCard({
                     {/* Additional Lesson Content */}
                     {hasContent && (
                         <div
-                            className="flex flex-col gap-3 text-justify"
+                            className="text-gray-700 text-justify whitespace-pre-wrap prose prose-sm max-w-none"
                             dangerouslySetInnerHTML={{
-                                __html: formatHtmlContent(item.content_html),
+                                __html: DOMPurify.sanitize(item.content_html),
                             }}
                         />
                     )}

@@ -66,11 +66,36 @@ const MenuBar = ({ editor }: { editor: any }) => {
             action: 'toggleOrderedList',
             isActiveName: 'orderedList',
         },
+        { type: 'divider' },
         {
-            icon: 'format_quote',
-            label: 'Quote',
-            action: 'toggleBlockquote',
-            isActiveName: 'blockquote',
+            icon: 'format_paragraph',
+            label: 'Paragraph',
+            action: 'setParagraph',
+            isActiveName: 'paragraph',
+        },
+        {
+            icon: 'format_h1',
+            label: 'Heading 1',
+            action: 'toggleHeading',
+            options: { level: 1 },
+            isActiveName: 'heading',
+            activeOptions: { level: 1 },
+        },
+        {
+            icon: 'format_h2',
+            label: 'Heading 2',
+            action: 'toggleHeading',
+            options: { level: 2 },
+            isActiveName: 'heading',
+            activeOptions: { level: 2 },
+        },
+        {
+            icon: 'format_h3',
+            label: 'Heading 3',
+            action: 'toggleHeading',
+            options: { level: 3 },
+            isActiveName: 'heading',
+            activeOptions: { level: 3 },
         },
         { type: 'divider' },
         {
@@ -97,7 +122,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
     ]
 
     return (
-        <div className="flex flex-wrap gap-1 border-b-2 border-[#DDE2E5] p-2 bg-gray-50 rounded-t-[14px] items-center">
+        <div className="flex flex-wrap gap-1 border-b-2 border-[#DDE2E5] p-2 bg-gray-50 rounded-t-[8px] items-center">
             {buttons.map((btn, index) => {
                 if (btn.type === 'divider') {
                     return (
@@ -113,7 +138,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
                     : editor.isActive(btn.isActiveName)
 
                 return (
-                    <DefaultButton
+                    <button
                         key={`${btn.action}-${index}`}
                         type="button"
                         title={btn.label}
@@ -133,7 +158,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
                         <span className="material-symbols-outlined text-[20px]">
                             {btn.icon}
                         </span>
-                    </DefaultButton>
+                    </button>
                 )
             })}
 
@@ -190,7 +215,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
 }
 
 interface RichTextFieldProps {
-    label: string
+    label?: string
     value: string
     onChange: (value: string) => void
     description?: React.ReactNode
@@ -222,7 +247,11 @@ function RichTextField({
             },
         },
         onUpdate: ({ editor }) => {
-            onChange(editor.getHTML())
+            let html = editor.getHTML()
+
+            html = html.replace(/<p>\s*<\/p>/g, '<p><br></p>')
+
+            onChange(html)
         },
     })
 
@@ -235,9 +264,11 @@ function RichTextField({
     return (
         <div className={`flex flex-col gap-1 w-full ${className}`}>
             <div className="flex flex-col gap-1">
-                <span className="font-medium text-[#121212]">{label}</span>
+                {label && (
+                    <span className="font-medium text-[#121212]">{label}</span>
+                )}
 
-                <div className="flex flex-col bg-[#F8F9FA] border-2 border-[#DDE2E5] rounded-[16px] focus-within:border-[#024C89] transition-colors overflow-hidden max-w-2xl">
+                <div className="flex flex-col border-2 border-[#DDE2E5] rounded-[8px] focus-within:border-[#024C89] transition-colors overflow-hidden">
                     <MenuBar editor={editor} />
                     <EditorContent editor={editor} />
                 </div>

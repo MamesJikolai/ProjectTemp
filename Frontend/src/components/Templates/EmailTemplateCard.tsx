@@ -1,5 +1,6 @@
 import type { EmailTemplate } from '../../types/models'
 import DefaultButton from '../DefaultButton'
+import DOMPurify from 'dompurify'
 
 interface EmailTemplateCardProps {
     emailTemplate: EmailTemplate[]
@@ -36,9 +37,12 @@ function EmailTemplateCard({
                         <div className="bg-[#DDE2E5] text-[14px] grow w-full px-4 py-2 rounded-xl">
                             <p className="font-bold">{item.subject}</p>
                             <br />
-                            <p className="whitespace-pre-wrap">
-                                {item.body_html}
-                            </p>
+                            <div
+                                className="whitespace-pre-wrap prose prose-sm max-w-none"
+                                dangerouslySetInnerHTML={{
+                                    __html: DOMPurify.sanitize(item.body_html),
+                                }}
+                            />
                             {item.signature_image_url && (
                                 <img
                                     src={item.signature_image_url}

@@ -4,9 +4,9 @@ import { CSS } from '@dnd-kit/utilities'
 import { Icons } from '../../../assets/icons'
 import type { Lesson } from '../../../types/models'
 import { getEmbedUrl } from '../../../utils/getEmbedUrl'
-import CourseDetailsField from '../CourseDetailsField'
 import CourseDetailsInput from '../CourseDetailsInput'
 import LessonVideoPlayer from '../LessonVideoPlayer'
+import RichTextField from '../../RichTextField'
 
 interface AdminLessonCardProps {
     item: Lesson & { _tempId?: string } // Support for unsaved lessons
@@ -112,18 +112,12 @@ function AdminLessonCard({
                     }`}
                 >
                     <div className="flex flex-col gap-4 overflow-hidden">
-                        <CourseDetailsField
+                        <RichTextField
                             value={item.description || ''}
-                            placeholder="Lesson Description"
-                            onChange={(e) =>
-                                onLessonChange(
-                                    index,
-                                    'description',
-                                    e.target.value
-                                )
+                            onChange={(value) =>
+                                onLessonChange(index, 'description', value)
                             }
                             className="w-full"
-                            rows={8}
                         />
 
                         {(embedUrl || embedUrl.trim() !== '') && (
@@ -153,18 +147,16 @@ function AdminLessonCard({
                         />
                         {contentToggle && (
                             <>
-                                <CourseDetailsField
+                                <RichTextField
                                     value={item.content_html || ''}
-                                    placeholder="More Lesson Content"
-                                    onChange={(e) =>
+                                    onChange={(value) =>
                                         onLessonChange(
                                             index,
                                             'content_html',
-                                            e.target.value
+                                            value
                                         )
                                     }
                                     className="w-full"
-                                    rows={8}
                                 />
 
                                 <div className="bg-blue-50/50 border border-blue-100 p-3 rounded-xl">

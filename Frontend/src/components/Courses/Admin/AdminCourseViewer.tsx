@@ -17,12 +17,12 @@ import {
 } from '@dnd-kit/sortable'
 import DefaultButton from '../../DefaultButton'
 import CourseDetailsInput from '../CourseDetailsInput'
-import CourseDetailsField from '../CourseDetailsField'
 import AdminLessonCard from './AdminLessonCard'
 import { useCourseData } from '../../../hook/useCourseData'
 import { apiService } from '../../../services/userService'
 import type { Course, Lesson, Quiz } from '../../../types/models'
 import QuizModal from '../QuizModal'
+import RichTextField from '../../RichTextField'
 
 const getLessonSortId = (lesson: any) => lesson.id?.toString() || lesson._tempId
 
@@ -334,16 +334,15 @@ function AdminCourseViewer({ role }: { role: string }) {
                 className="font-bold text-4xl text-[#121212] w-full"
             />
 
-            <CourseDetailsField
+            <RichTextField
                 value={course?.description}
-                onChange={(e) => {
+                onChange={(value) => {
                     setCourse((prev) =>
-                        prev ? { ...prev, description: e.target.value } : prev
+                        prev ? { ...prev, description: value } : prev
                     )
                     setHasUnsavedChanges(true)
                 }}
                 className="w-full"
-                rows={8}
             />
 
             <div className="flex flex-col gap-4 w-full">

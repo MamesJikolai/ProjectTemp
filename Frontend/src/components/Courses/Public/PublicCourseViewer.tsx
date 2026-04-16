@@ -6,6 +6,7 @@ import { useCourseData } from '../../../hook/useCourseData'
 import { apiService } from '../../../services/userService'
 import type { QuizPublic } from '../../../types/models'
 import PublicQuizModal from './PublicQuizModal'
+import DOMPurify from 'dompurify'
 
 function PublicCourseViewer({ role }: { role: string }) {
     const { courseId } = useParams<{ courseId: string }>()
@@ -135,9 +136,12 @@ function PublicCourseViewer({ role }: { role: string }) {
 
             <h1>{course?.title || 'Course Title'}</h1>
 
-            <p className="text-justify whitespace-pre-wrap">
-                {course?.description}
-            </p>
+            <div
+                className="text-justify whitespace-pre-wrap prose prose-sm max-w-none"
+                dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(course?.description || ''),
+                }}
+            />
 
             <div className="flex flex-col gap-4 w-full">
                 {course?.lessons?.map((item, index) => (
